@@ -84,7 +84,7 @@ class Profile {
     }
 
     List<String> getIsotopeHeader() {
-        return csvData.get(0).subList(1, csvData.size()-1);
+        return csvData.get(0);
     }
 
     List<String> getMeasurementRow(int rowIndex) {

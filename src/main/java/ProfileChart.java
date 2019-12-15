@@ -112,12 +112,11 @@ public class ProfileChart {
 
     private static String transactionDirPath = null;
 
-    private static String getDirPath(int dirNumber) {
+    static String getDirPath(int dirNumber) {
         if (transactionDirPath != null) {
             return transactionDirPath;
         }
         String dirPath = "./charts/" + dirNumber + "/";
-        System.out.println(dirNumber);
         if (new File(dirPath).exists()) {
             dirNumber++;
             return getDirPath(dirNumber);

@@ -1,4 +1,11 @@
+import org.knowm.xchart.BitmapEncoder;
+import org.knowm.xchart.XYChart;
+import org.knowm.xchart.style.Styler;
+import org.knowm.xchart.style.markers.SeriesMarkers;
+
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 class Templates {
     static void createRatiosForNaMgAl() {
@@ -6,7 +13,7 @@ class Templates {
         ArrayList<String> standards = new ArrayList<>();
         standards.add("csv/1-018-SPH4.csv");
         standards.add("csv/1-031-SPH5.csv");
-        for (String element : new String[]{"Na23", "Mg24", "Al27"}) {
+        for (String element : new String[]{"Al27"}) {
             profileChart.buildPpmChart(standards, element);
             profileChart.buildPpmRatioCharts(standards, element);
         }
@@ -24,6 +31,35 @@ class Templates {
                 ProfileChart profileChart = new ProfileChart("csv/" + csvFileName);
                 profileChart.buildCpsChart("Al27");
             }
+        }
+    }
+
+    static void createAnalyzerCharts() {
+        Profile profile = new Profile(CSVLoader.loadCsv("csv/1-022-18-5h-x2-1-5L8a.csv"));
+        ArrayList<String> standards = new ArrayList<>();
+        standards.add("csv/1-018-SPH4.csv");
+        standards.add("csv/1-031-SPH5.csv");
+        ProfileAnalyzer profileAnalyzer = new ProfileAnalyzer(profile, standards);
+
+        ArrayList<Double> ba138Al27Ratios = profileAnalyzer.ppmAlRatiosByName.get("Ba138");
+
+        HashMap<Integer, Double> peakRatioValues = profileAnalyzer.getPeakRatioValues(new HashMap<>(), "Ba138");
+
+
+        buildChartWithDoubleArray(ba138Al27Ratios, "Ba138 - Al27 ratios");
+
+
+    }
+
+    private static void buildChartWithDoubleArray(ArrayList<Double> doubleArray, String title) {
+        XYChart chart = new XYChart(2000, 800);
+        chart.setTitle(title);
+        chart.addSeries("analyte", null, doubleArray);
+        chart.getStyler().setLegendPosition(Styler.LegendPosition.InsideNE);
+        try {
+            BitmapEncoder.saveBitmap(chart, ProfileChart.getDirPath(0) + title, BitmapEncoder.BitmapFormat.GIF);
+        } catch (IOException e) {
+
         }
     }
 }
