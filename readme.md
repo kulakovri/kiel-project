@@ -25,3 +25,14 @@ Terminal way:
 
 # Usage
 
+This is a maven project and all Java classes are located in the `./src/main/java` folder
+
+Current version's can be ran from `Main` class by calling `main()` method, but it is used primarily for calling static 
+methods from the `Templates` class
+
+Currently `Templates` includes:
+
+//currently in development
+
+createRatiosForNaMgAl() method that is creating charts for PPM ratios. specified in a ProfileChart constructor profile csv file using 
+one or multiple standard csv values for calibration

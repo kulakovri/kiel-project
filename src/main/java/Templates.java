@@ -1,6 +1,6 @@
 import java.util.ArrayList;
 
-public class Templates {
+class Templates {
     static void createRatiosForNaMgAl() {
         ProfileChart profileChart = new ProfileChart("csv/1-022-18-5h-x2-1-5L8a.csv");
         ArrayList<String> standards = new ArrayList<>();
