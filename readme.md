@@ -8,3 +8,8 @@ csv files containing CPS results - https://drive.google.com/file/d/1l1Ylb8qINp6-
 
 # Setting up
 
+1) https://help.github.com/en/desktop/getting-started-with-github-desktop/installing-github-desktop
+2) Clone repository to local using terminal command ``git clone https://github.com/kulakovri/kiel-project``. 
+`kiel-project` Project folder should be in a terminal's current directory
+3) Copy csv files to the Project root
+4) Open Inteliji IDEA CE and open kiel-project with it
