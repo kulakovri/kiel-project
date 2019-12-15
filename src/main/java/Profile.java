@@ -84,7 +84,7 @@ class Profile {
     }
 
     List<String> getIsotopeHeader() {
-        return csvData.get(0);
+        return csvData.get(0).subList(1, csvData.size()-1);
     }
 
     List<String> getMeasurementRow(int rowIndex) {
@@ -152,6 +152,14 @@ class Profile {
         return analyteValues;
     }
 
+    HashMap<String,ArrayList<Double>> getPpmValuesByName(ArrayList<String> standardCsvAddresses) {
+        HashMap<String,ArrayList<Double>> ppmValuesByElementNames = new HashMap<>();
+        for (String name : getIsotopeHeader()) {
+            ppmValuesByElementNames.put(name, calculatePpmValues(standardCsvAddresses, name));
+        }
+        return ppmValuesByElementNames;
+    }
+
     ArrayList<Double> calculatePpmValues(ArrayList<String> standardCsvAddresses, String name) {
         ArrayList<Double> ppmValues = new ArrayList<>();
         Double standardsAverageCpsMinusBackground = getStandardsAverageCpsMinusBackground(standardCsvAddresses, name);
@@ -183,7 +191,7 @@ class Profile {
         return getPpmRatio(firstCpsValues, secondCpsValues);
     }
 
-    private ArrayList<Double> getPpmRatio(ArrayList<Double> firstSetOfValues, ArrayList<Double> secondSetOfValues) {
+    ArrayList<Double> getPpmRatio(ArrayList<Double> firstSetOfValues, ArrayList<Double> secondSetOfValues) {
         ArrayList<Double> ratioValues = new ArrayList<>();
         for (int i = 0 ; i < firstSetOfValues.size() ; i++) {
             Double ratioValue = firstSetOfValues.get(i) / secondSetOfValues.get(i);

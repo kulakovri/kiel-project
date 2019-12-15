@@ -20,7 +20,7 @@ public class Concentration {
         return molarWeightsElements;
     }
 
-    public static Map<String, Double> getSphPpmMap() {
+    static Map<String, Double> getSphPpmMap() {
         Map<String, Double> sphValues = new HashMap<>();
         String ppmValuesPlain = "Al: 156129.0 ppm Ba: 121.9 ppm Ca: 87621.0 ppm " +
                 "Cr: 0.1 ppm Ni: 0.0 ppm Cu: 3.2 ppm Dy: 0.1 ppm Eu: 0.4 ppm Fe: 2876.0 ppm " +
