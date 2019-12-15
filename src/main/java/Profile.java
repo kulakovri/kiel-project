@@ -151,4 +151,44 @@ class Profile {
         }
         return analyteValues;
     }
+
+    ArrayList<Double> calculatePpmValues(ArrayList<String> standardCsvAddresses, String name) {
+        ArrayList<Double> ppmValues = new ArrayList<>();
+        Double standardsAverageCpsMinusBackground = getStandardsAverageCpsMinusBackground(standardCsvAddresses, name);
+        Double ppmValue = Concentration.getSphPpmMap().get(name.replaceAll("[0-9]", ""));
+        Double analyteBackgroundAverageCps = this.backgroundAverages.get(name);
+        for (Double analyteValue : getAnalyteValues(name)) {
+            Double calculatedValue = ppmValue * (analyteValue - analyteBackgroundAverageCps) / standardsAverageCpsMinusBackground;
+            ppmValues.add(calculatedValue);
+        }
+        return ppmValues;
+    }
+
+    private Double getStandardsAverageCpsMinusBackground(ArrayList<String> standardCsvAddresses, String name) {
+        Double standardAverageCps = 0.0;
+        Double standardBackgroundCps = 0.0;
+        for (String standardCsvAddress : standardCsvAddresses) {
+            Profile standardProfile = new Profile(CSVLoader.loadCsv(standardCsvAddress));
+            standardAverageCps += standardProfile.getAnalyteAverageCps(name);
+            standardBackgroundCps += standardProfile.backgroundAverages.get(name);
+        }
+        standardAverageCps = standardAverageCps / standardCsvAddresses.size();
+        standardBackgroundCps = standardBackgroundCps / standardCsvAddresses.size();
+        return standardAverageCps - standardBackgroundCps;
+    }
+
+    ArrayList<Double> getPpmRatioValues(ArrayList<String> standardCsvAddresses, String firstElementName, String secondElementName) {
+        ArrayList<Double> firstCpsValues = calculatePpmValues(standardCsvAddresses, firstElementName);
+        ArrayList<Double> secondCpsValues = calculatePpmValues(standardCsvAddresses, secondElementName);
+        return getPpmRatio(firstCpsValues, secondCpsValues);
+    }
+
+    private ArrayList<Double> getPpmRatio(ArrayList<Double> firstSetOfValues, ArrayList<Double> secondSetOfValues) {
+        ArrayList<Double> ratioValues = new ArrayList<>();
+        for (int i = 0 ; i < firstSetOfValues.size() ; i++) {
+            Double ratioValue = firstSetOfValues.get(i) / secondSetOfValues.get(i);
+            ratioValues.add(ratioValue);
+        }
+        return ratioValues;
+    }
 }

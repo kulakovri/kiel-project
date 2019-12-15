@@ -51,7 +51,7 @@ public class ProfileChart {
     }
 
     void buildPpmChart(ArrayList<String> standardCsvAddresses, String name) {
-        ArrayList<Double> ppmValues = calculatePpmValues(standardCsvAddresses, name);
+        ArrayList<Double> ppmValues = profile.calculatePpmValues(standardCsvAddresses, name);
 
         String title = csvFileName + " - " + name + " ppm";
         XYChart chart = new XYChart(2000, 800);
@@ -66,34 +66,9 @@ public class ProfileChart {
         }
     }
 
-    ArrayList<Double> calculatePpmValues(ArrayList<String> standardCsvAddresses, String name) {
-        ArrayList<Double> ppmValues = new ArrayList<>();
-        Double standardsAverageCpsMinusBackground = getStandardsAverageCpsMinusBackground(standardCsvAddresses, name);
-        Double ppmValue = Concentration.getSphPpmMap().get(name.replaceAll("[0-9]", ""));
-        Double analyteBackgroundAverageCps = profile.backgroundAverages.get(name);
-        for (Double analyteValue : profile.getAnalyteValues(name)) {
-            Double calculatedValue = ppmValue * (analyteValue - analyteBackgroundAverageCps) / standardsAverageCpsMinusBackground;
-            ppmValues.add(calculatedValue);
-        }
-        return ppmValues;
-    }
-
-    private Double getStandardsAverageCpsMinusBackground(ArrayList<String> standardCsvAddresses, String name) {
-        Double standardAverageCps = 0.0;
-        Double standardBackgroundCps = 0.0;
-        for (String standardCsvAddress : standardCsvAddresses) {
-            Profile standardProfile = new Profile(CSVLoader.loadCsv(standardCsvAddress));
-            standardAverageCps += standardProfile.getAnalyteAverageCps(name);
-            standardBackgroundCps += standardProfile.backgroundAverages.get(name);
-        }
-        standardAverageCps = standardAverageCps / standardCsvAddresses.size();
-        standardBackgroundCps = standardBackgroundCps / standardCsvAddresses.size();
-        return standardAverageCps - standardBackgroundCps;
-    }
-
     void buildPpmRatioCharts(ArrayList<String> standardCsvAddresses, String secondElementName) {
         for (String firstElementName : profile.getIsotopeHeader()) {
-            if (firstElementName.equals("Time [Sec]")) {
+            if (firstElementName.equals("Time [Sec]") || firstElementName.equals(secondElementName)) {
                 continue;
             }
             buildPpmRatioChart(standardCsvAddresses, firstElementName, secondElementName);
@@ -102,9 +77,7 @@ public class ProfileChart {
     }
 
     void buildPpmRatioChart(ArrayList<String> standardCsvAddresses, String firstElementName, String secondElementName) {
-        ArrayList<Double> firstPpmValues = calculatePpmValues(standardCsvAddresses, firstElementName);
-        ArrayList<Double> secondPpmValues = calculatePpmValues(standardCsvAddresses, secondElementName);
-        ArrayList<Double> ratioValues = getRatio(firstPpmValues, secondPpmValues);
+        ArrayList<Double> ratioValues = profile.getPpmRatioValues(standardCsvAddresses, firstElementName, secondElementName);
         String ratioName = firstElementName + "/" + secondElementName;
         String title = csvFileName + " - " + ratioName + " ratio";
         XYChart chart = new XYChart(2000, 800);
