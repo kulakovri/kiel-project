@@ -24,54 +24,123 @@ class ProfileAnalyzer {
         return ppmAlRatiosByName;
     }
 
-    HashMap<Integer, Double> getPeakRatioValues(HashMap<Integer, Double> peakRatioValues, String name) {
-        ArrayList<Double> ppmAlRatioValues = ppmAlRatiosByName.get(name);
-        peakRatioValues = initPeakRatioValuesIfEmpty(peakRatioValues, ppmAlRatioValues);
+    HashMap<Integer, Double> getAngleValues(String name) {
+        ArrayList<Double> sequenceValues = ppmAlRatiosByName.get(name);
+        ArrayList<Integer> angleIndexes = initAngleIndexes(sequenceValues);
 
-        ArrayList<ArrayList<Double>> splitPpmAlRatioValues = getSplitPpmAlRatioValues(peakRatioValues, ppmAlRatioValues);
 
-        for (ArrayList<Double> ratioArray : splitPpmAlRatioValues) {
-            peakRatioValues = putMinAndMaxValues(peakRatioValues, ratioArray);
+
+        ArrayList<ArrayList<Double>> partedSequences = partSequenceValues(angleIndexes, sequenceValues);
+        angleIndexes = addMinAndMaxValues(angleIndexes, sequenceValues);
+        partedSequences = partSequenceValues(angleIndexes, sequenceValues);
+
+
+        int sequenceIndex = 0;
+        for (ArrayList<Double> partedSequence : partedSequences) {
+            ArrayList<Double> perfectSequenceLine = getPerfectSequenceLine(partedSequence);
+            ArrayList<Double> differenceSequence = getDifferenceSequence(perfectSequenceLine, partedSequence);
+
+            angleIndexes = addMinAndMaxValues(angleIndexes, differenceSequence);
+
+            sequenceIndex++;
         }
 
-
-        return peakRatioValues;
+        return new HashMap<>();
     }
 
-    private HashMap<Integer, Double> initPeakRatioValuesIfEmpty(HashMap<Integer, Double> peakRatioValues, ArrayList<Double> ppmAlRatioValues) {
-        if (peakRatioValues.isEmpty()) {
-            peakRatioValues.put(0, ppmAlRatioValues.get(0));
-            peakRatioValues.put(ppmAlRatioValues.size()-1, ppmAlRatioValues.get(ppmAlRatioValues.size()-1));
+    private ArrayList<Double> getDifferenceSequence(ArrayList<Double> minuendSequence, ArrayList<Double> subtrahendSequence) {
+        ArrayList<Double> differenceSequence = new ArrayList<>();
+        for (Integer i = 0 ; i < minuendSequence.size() ; i++) {
+            Double differenceForStep = minuendSequence.get(i) - subtrahendSequence.get(i);
+            differenceSequence.add(differenceForStep);
         }
-        return peakRatioValues;
+        return differenceSequence;
     }
 
-    private ArrayList<ArrayList<Double>> getSplitPpmAlRatioValues(HashMap<Integer, Double> peakRatioValues, ArrayList<Double> ppmAlRatioValues) {
-        ArrayList<ArrayList<Double>> splitPpmAlRatioValues = new ArrayList<>();
+    private ArrayList<ArrayList<Double>> partSequenceValues(ArrayList<Integer> angleIndexes, ArrayList<Double> sequenceValues) {
+        ArrayList<ArrayList<Double>> partedSequences = new ArrayList<>();
         Integer previousKey = null;
-        for (Integer i : peakRatioValues.keySet()) {
+        Collections.sort(angleIndexes);
+        for (Integer i : angleIndexes) {
             if (previousKey != null) {
-                ppmAlRatioValues.subList(previousKey, i);
+                System.out.println("Adding Double range " + previousKey + " and " + i);
+                partedSequences.add(new ArrayList<>(sequenceValues.subList(previousKey, i+1)));
             }
             previousKey = i;
         }
-        return splitPpmAlRatioValues;
+        return partedSequences;
     }
 
-    private HashMap<Integer, Double> putMinAndMaxValues(HashMap<Integer, Double> peakRatioValues, ArrayList<Double> ratioArray) {
-        Double maxValue = Collections.max(ratioArray);
-        Double minValue = Collections.min(ratioArray);
-        for (Integer i = 0 ; i < ratioArray.size()-1 ; i++) {
-            Double value = ratioArray.get(i);
-            if (value == maxValue) {
+    private ArrayList<Integer> initAngleIndexes(ArrayList<Double> sequenceValues) {
+        ArrayList<Integer> angleIndexes = new ArrayList<>();
+        angleIndexes.add(0);
+        angleIndexes.add(sequenceValues.size()-1);
+        return angleIndexes;
+    }
+
+    private ArrayList<Integer> addMinAndMaxValues(ArrayList<Integer> angleIndexes, ArrayList<Double> sequenceValues) {
+        Double maxValue = Collections.max(sequenceValues);
+        Double minValue = Collections.min(sequenceValues);
+        Double stDev = findStandardDev(sequenceValues);
+        Double average = calculateAverage(sequenceValues);
+        Double maxOutOfStDev = average + stDev;
+        Double minOutOfStDev = average - stDev;
+        System.out.println("Maximum out of Standard deviation  " + maxOutOfStDev);
+        System.out.println("Minimum out of Standard deviation  " + minOutOfStDev);
+        for (Integer i = 0 ; i < sequenceValues.size()-1 ; i++) {
+            Double value = sequenceValues.get(i);
+            if (value == maxValue && value > maxOutOfStDev) {
                 System.out.println("max value: " + value + " || index: " + i);
-                peakRatioValues.put(i, value);
+                angleIndexes.add(i);
             }
-            if (value == minValue) {
+            if (value == minValue && value < minOutOfStDev) {
                 System.out.println("min value: " + value + " || index: " + i);
-                peakRatioValues.put(i, value);
+                angleIndexes.add(i);
             }
         }
-        return peakRatioValues;
+        return angleIndexes;
+    }
+
+    private ArrayList<Double> getPerfectSequenceLine(ArrayList<Double> partedSequence) {
+        ArrayList<Double> perfectSequenceLine = new ArrayList<>();
+        Double firstValue = partedSequence.get(0);
+        Double perStepValue = getPerStepValue(partedSequence);
+        for (Integer i = 0 ; i < partedSequence.size() ; i++) {
+            Double stepValue = firstValue + (i * perStepValue);
+            //System.out.println("For the step " + i + " value is " + stepValue);
+            perfectSequenceLine.add(stepValue);
+        }
+        return perfectSequenceLine;
+    }
+
+    private Double getPerStepValue(ArrayList<Double> partedSequence) {
+        Integer partedSequenceSize = partedSequence.size();
+        Double firstValue = partedSequence.get(0);
+        Double lastValue = partedSequence.get(partedSequenceSize-1);
+        return  (lastValue - firstValue) / partedSequenceSize;
+    }
+
+    private Double findStandardDev(ArrayList<Double> table) {
+        Double mean =  calculateAverage(table);
+        System.out.println("mean value: " + mean);
+        Double temp = 0.0;
+        for (Integer i = 0; i < table.size(); i++) {
+            Double val = table.get(i);
+            Double squrDiffToMean = Math.pow(val - mean, 2);
+            temp += squrDiffToMean;
+        }
+        Double meanOfDiffs = temp / table.size();
+        return Math.sqrt(meanOfDiffs);
+    }
+
+    private Double calculateAverage(ArrayList <Double> marks) {
+        Double sum = 0.0;
+        if(!marks.isEmpty()) {
+            for (Double mark : marks) {
+                sum += mark;
+            }
+            return sum.doubleValue() / marks.size();
+        }
+        return sum;
     }
 }

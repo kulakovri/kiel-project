@@ -41,17 +41,15 @@ class Templates {
         standards.add("csv/1-031-SPH5.csv");
         ProfileAnalyzer profileAnalyzer = new ProfileAnalyzer(profile, standards);
 
-        ArrayList<Double> ba138Al27Ratios = profileAnalyzer.ppmAlRatiosByName.get("Ba138");
-
-        HashMap<Integer, Double> peakRatioValues = profileAnalyzer.getPeakRatioValues(new HashMap<>(), "Ba138");
+        HashMap<Integer, Double> peakRatioValues = profileAnalyzer.getAngleValues("Ba138");
 
 
-        buildChartWithDoubleArray(ba138Al27Ratios, "Ba138 - Al27 ratios");
+        //buildChartWithDoubleArray(ba138Al27Ratios, "Ba138 - Al27 ratios");
 
 
     }
 
-    private static void buildChartWithDoubleArray(ArrayList<Double> doubleArray, String title) {
+    static void buildChartWithDoubleArray(ArrayList<Double> doubleArray, String title) {
         XYChart chart = new XYChart(2000, 800);
         chart.setTitle(title);
         chart.addSeries("analyte", null, doubleArray);
