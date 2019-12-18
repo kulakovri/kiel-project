@@ -5,10 +5,60 @@ import org.knowm.xchart.style.markers.SeriesMarkers;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.TreeMap;
 
 class Templates {
+    static void buildChartsForAllProfiles(String elementName) {
+        for (String csvFileName : CSVLoader.getListOfCsvFiles()) {
+            if (isAnalyteProfile(csvFileName)) {
+                ProfileChart profileChart = new ProfileChart(csvFileName);
+                ArrayList<String> standards = new ArrayList<>();
+                standards.add(getFirstStandardForAnalyte(csvFileName));
+                standards.add(getSecondStandardForAnalyte(csvFileName));
+                profileChart.buildPpmChart(standards, elementName);
+            }
+        }
+    }
+
+    private static String getFirstStandardForAnalyte(String analyteCsvFileName) {
+        String sphCsvName = "";
+        for (String csvFileName : CSVLoader.getListOfCsvFiles()) {
+            if (isSPHProfile(csvFileName) && isReliableSPH(csvFileName)) {
+                sphCsvName = csvFileName;
+            }
+            if (csvFileName == analyteCsvFileName) {
+                break;
+            }
+        }
+        return sphCsvName;
+    }
+
+    private static String getSecondStandardForAnalyte(String analyteCsvFileName) {
+        String sphCsvName = "";
+        boolean analytePassed = false;
+        for (String csvFileName : CSVLoader.getListOfCsvFiles()) {
+            if (csvFileName == analyteCsvFileName) {
+                analytePassed = true;
+            }
+            if (isSPHProfile(csvFileName) && isReliableSPH(csvFileName) && analytePassed) {
+                sphCsvName = csvFileName;
+            }
+        }
+        return sphCsvName;
+    }
+
+    private static boolean isAnalyteProfile(String csvFileName) {
+        return csvFileName.contains("L");
+    }
+
+    private static boolean isSPHProfile(String csvFileName) {
+        return csvFileName.contains("SPH");
+    }
+
+    private static boolean isReliableSPH(String csvFileName) {
+        return !Concentration.getUnreliableSPHes().contains(csvFileName);
+    }
+
     static void createRatiosForNaMgAl() {
         ProfileChart profileChart = new ProfileChart("csv/1-022-18-5h-x2-1-5L8a.csv");
         ArrayList<String> standards = new ArrayList<>();

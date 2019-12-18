@@ -1,5 +1,6 @@
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,5 +36,19 @@ public class Concentration {
             sphValues.put(elementName, Double.valueOf(weightString));
         }
         return sphValues;
+    }
+
+    static ArrayList<String> unreliableSPHes = new ArrayList<>();
+
+    static ArrayList<String> getUnreliableSPHes() {
+        if (unreliableSPHes.isEmpty()) {
+            ArrayList<String> initUnreliableSPHes = new ArrayList<>();
+            initUnreliableSPHes.add("1-005-SPH.csv");
+            initUnreliableSPHes.add("1-015-SPH3.csv");
+            initUnreliableSPHes.add("2-003-SPH1.csv");
+            initUnreliableSPHes.add("2-047-SPH.csv");
+            unreliableSPHes = initUnreliableSPHes;
+        }
+        return unreliableSPHes;
     }
 }
