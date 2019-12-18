@@ -5,7 +5,7 @@ import java.util.TreeMap;
 class AngleFinder {
     private ArrayList<Double> sequenceValues;
     private TreeMap<Integer, Double> indexedSequenceValues = new TreeMap<>();
-    private ArrayList<Integer> angleIndexes = new ArrayList<>();
+    ArrayList<Integer> angleIndexes = new ArrayList<>();
 
     AngleFinder(ArrayList<Double> sequenceValues) {
         this.sequenceValues = sequenceValues;
@@ -105,16 +105,19 @@ class AngleFinder {
 
     private void addAngleIndexes(ArrayList<TreeMap<Integer, Double>> differenceSequences) {
         for (TreeMap<Integer, Double> differenceSequence : differenceSequences) {
-            ArrayList<Double> differenceSequenceArray = (ArrayList<Double>) differenceSequence.values();
+            ArrayList<Double> differenceSequenceArray = new ArrayList<>(differenceSequence.values());
             Double maxValue = Collections.max(differenceSequenceArray);
             Double minValue = Collections.min(differenceSequenceArray);
             Double stDev = findStandardDev(differenceSequenceArray);
             for (Integer i : differenceSequence.keySet()) {
+                if (angleIndexes.contains(i)) {
+                    continue;
+                }
                 Double value = differenceSequence.get(i);
-                if (value == maxValue && value > stDev) {
+                if (value == maxValue && value > stDev*2) {
                     angleIndexes.add(i);
                 }
-                if (value == minValue && value < -stDev) {
+                if (value == minValue && value < -stDev*2) {
                     angleIndexes.add(i);
                 }
             }

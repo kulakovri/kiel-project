@@ -6,6 +6,7 @@ import org.knowm.xchart.style.markers.SeriesMarkers;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.TreeMap;
 
 class Templates {
     static void createRatiosForNaMgAl() {
@@ -41,8 +42,9 @@ class Templates {
         standards.add("csv/1-031-SPH5.csv");
         ProfileAnalyzer profileAnalyzer = new ProfileAnalyzer(profile, standards);
 
-        HashMap<Integer, Double> peakRatioValues = profileAnalyzer.getAngleValues("Ba138");
+        TreeMap<Integer, Double> peakRatioValues = profileAnalyzer.getAngleValues("Ba138");
 
+        buildChartWithTreeMap(peakRatioValues, "Ba138 - Al27 ratios");
 
         //buildChartWithDoubleArray(ba138Al27Ratios, "Ba138 - Al27 ratios");
 
@@ -53,6 +55,18 @@ class Templates {
         XYChart chart = new XYChart(2000, 800);
         chart.setTitle(title);
         chart.addSeries("analyte", null, doubleArray);
+        chart.getStyler().setLegendPosition(Styler.LegendPosition.InsideNE);
+        try {
+            BitmapEncoder.saveBitmap(chart, ProfileChart.getDirPath(0) + title, BitmapEncoder.BitmapFormat.GIF);
+        } catch (IOException e) {
+
+        }
+    }
+
+    static void buildChartWithTreeMap(TreeMap<Integer, Double> treeMap, String title) {
+        XYChart chart = new XYChart(2000, 800);
+        chart.setTitle(title);
+        chart.addSeries("analyte", new ArrayList<>(treeMap.keySet()), new ArrayList<>(treeMap.values()));
         chart.getStyler().setLegendPosition(Styler.LegendPosition.InsideNE);
         try {
             BitmapEncoder.saveBitmap(chart, ProfileChart.getDirPath(0) + title, BitmapEncoder.BitmapFormat.GIF);

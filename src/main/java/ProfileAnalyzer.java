@@ -1,12 +1,12 @@
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.TreeMap;
 
 class ProfileAnalyzer {
     Profile profile;
     HashMap<String, ArrayList<Double>> ppmValuesByName;
     HashMap<String, ArrayList<Double>> ppmAlRatiosByName;
-    HashMap<Integer, HashMap<Integer, Double>> peakRatioValuesByName;
 
     ProfileAnalyzer(Profile profile, ArrayList<String> standardCsvAddresses) {
         this.profile = profile;
@@ -24,10 +24,34 @@ class ProfileAnalyzer {
         return ppmAlRatiosByName;
     }
 
-    HashMap<Integer, Double> getAngleValues(String name) {
+    TreeMap<Integer, Double> getAngleValues(String name) {
         ArrayList<Double> sequenceValues = ppmAlRatiosByName.get(name);
         AngleFinder angleFinder = new AngleFinder(sequenceValues);
-        angleFinder.addExtremes();
-        return new HashMap<>();
+        Integer angleIndexesSize = angleFinder.angleIndexes.size();
+
+        Integer count = 0;
+        for (int i = 0 ; i < 5 ; i++) {
+            count++;
+            angleFinder.addExtremes();
+            Integer newAngleIndexesSize = angleFinder.angleIndexes.size();
+            if (newAngleIndexesSize == angleIndexesSize) {
+                break;
+            } else {
+                angleIndexesSize = newAngleIndexesSize;
+            }
+        }
+
+        ArrayList<Integer> angleIndexes = angleFinder.angleIndexes;
+        Collections.sort(angleIndexes);
+
+        System.out.println("Iteration count: " + count);
+        TreeMap<Integer, Double> outputHashMap = new TreeMap<>();
+
+        for (Integer extreme : angleFinder.angleIndexes) {
+            System.out.println(extreme+","+sequenceValues.get(extreme));
+            outputHashMap.put(extreme, sequenceValues.get(extreme));
+        }
+
+        return outputHashMap;
     }
 }
