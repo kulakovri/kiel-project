@@ -76,7 +76,7 @@ class Templates {
     }
 
     private static boolean isReliableSPH(String csvFileName) {
-        return !Concentration.getUnreliableSPHes().contains(csvFileName);
+        return !Store.getUnreliableSPHes().contains(csvFileName);
     }
 
     static void createRatiosForNaMgAl() {

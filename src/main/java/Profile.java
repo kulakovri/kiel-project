@@ -4,6 +4,8 @@ class Profile {
     private List<List<String>> csvData;
     private Integer backgroundMin;
     private Integer backgroundMax;
+    boolean isFromRimToCore;
+    boolean isContinuation;
     ArrayList<Integer> nonAnalyteValueIndexes;
     Map<String, Double> backgroundAverages = new HashMap<>();
 
@@ -163,7 +165,7 @@ class Profile {
     ArrayList<Double> calculatePpmValues(ArrayList<String> standardCsvAddresses, String name) {
         ArrayList<Double> ppmValues = new ArrayList<>();
         Double standardsAverageCpsMinusBackground = getStandardsAverageCpsMinusBackground(standardCsvAddresses, name);
-        Double ppmValue = Concentration.getSphPpmMap().get(name.replaceAll("[0-9]", ""));
+        Double ppmValue = Store.getSphPpmMap().get(name.replaceAll("[0-9]", ""));
         Double analyteBackgroundAverageCps = this.backgroundAverages.get(name);
         for (Double analyteValue : getAnalyteValues(name)) {
             Double calculatedValue = ppmValue * (analyteValue - analyteBackgroundAverageCps) / standardsAverageCpsMinusBackground;
