@@ -1,21 +1,38 @@
 import org.knowm.xchart.BitmapEncoder;
 import org.knowm.xchart.XYChart;
 import org.knowm.xchart.style.Styler;
-import org.knowm.xchart.style.markers.SeriesMarkers;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.TreeMap;
 
 class Templates {
+
+    static void buildChartsForAllProfilesForAllElements() {
+        for (String element : new String[]{
+                "Li7","Na23","Mg24","Al27","Si29",
+                "P31","K39","Ca43","Ca44","Ti47",
+                "Mn55","Fe57","Cu65","Ga71","Sr88",
+                "Y89","Ba138","Ce140","Pb208"}) {
+            buildChartsForAllProfiles(element);
+        }
+    }
+
     static void buildChartsForAllProfiles(String elementName) {
         for (String csvFileName : CSVLoader.getListOfCsvFiles()) {
+            String csvFilePath = "csv/" + csvFileName;
             if (isAnalyteProfile(csvFileName)) {
-                ProfileChart profileChart = new ProfileChart(csvFileName);
+                System.out.println("Analyte: " + csvFileName);
+                ProfileChart profileChart = new ProfileChart(csvFilePath);
                 ArrayList<String> standards = new ArrayList<>();
                 standards.add(getFirstStandardForAnalyte(csvFileName));
                 standards.add(getSecondStandardForAnalyte(csvFileName));
-                profileChart.buildPpmChart(standards, elementName);
+                try {
+                    profileChart.buildPpmChart(standards, elementName);
+                } catch (Exception e) {
+                    System.out.println(e.getMessage());
+                }
+
             }
         }
     }
@@ -26,25 +43,28 @@ class Templates {
             if (isSPHProfile(csvFileName) && isReliableSPH(csvFileName)) {
                 sphCsvName = csvFileName;
             }
-            if (csvFileName == analyteCsvFileName) {
+            if (csvFileName.equals(analyteCsvFileName)) {
                 break;
             }
         }
-        return sphCsvName;
+        System.out.println("1) used standard: " + sphCsvName);
+        return "csv/" + sphCsvName;
     }
 
     private static String getSecondStandardForAnalyte(String analyteCsvFileName) {
         String sphCsvName = "";
         boolean analytePassed = false;
         for (String csvFileName : CSVLoader.getListOfCsvFiles()) {
-            if (csvFileName == analyteCsvFileName) {
+            if (csvFileName.equals(analyteCsvFileName)) {
                 analytePassed = true;
             }
             if (isSPHProfile(csvFileName) && isReliableSPH(csvFileName) && analytePassed) {
                 sphCsvName = csvFileName;
+                break;
             }
         }
-        return sphCsvName;
+        System.out.println("2) used standard: " + sphCsvName);
+        return "csv/" + sphCsvName;
     }
 
     private static boolean isAnalyteProfile(String csvFileName) {

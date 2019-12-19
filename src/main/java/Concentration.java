@@ -2,6 +2,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Concentration {
@@ -50,5 +51,49 @@ public class Concentration {
             unreliableSPHes = initUnreliableSPHes;
         }
         return unreliableSPHes;
+    }
+
+    static ArrayList<String> analyzedGrains = new ArrayList<>();
+
+    static ArrayList<String> getAnalyzedGrains() {
+        if (analyzedGrains.isEmpty()) {
+            ArrayList<String> initAnalyzedGrains = new ArrayList<>();
+            initAnalyzedGrains.add("18-5h-1-2");
+            initAnalyzedGrains.add("18-5h-1-8");
+            initAnalyzedGrains.add("18-5h-1-10");
+            initAnalyzedGrains.add("18-5h-x2-1-5");
+            initAnalyzedGrains.add("18-5h-x2-1-13");
+            initAnalyzedGrains.add("18-5h-x2-1-25");
+            initAnalyzedGrains.add("18-5h-x2-1-27");
+            initAnalyzedGrains.add("18-5h-x3-1-10");
+            initAnalyzedGrains.add("18-5h-x3-1-12");
+            initAnalyzedGrains.add("18-3a-1-8");
+            initAnalyzedGrains.add("18-3a-2-2");
+            initAnalyzedGrains.add("18-3a-2-5");
+            initAnalyzedGrains.add("18-5h-x3-1-41");
+            initAnalyzedGrains.add("18-5h-x3-1-49");
+            initAnalyzedGrains.add("18-5h-x3-1-53");
+            initAnalyzedGrains.add("18-5h-x3-1-54");
+            initAnalyzedGrains.add("18-5h-x2-2-41");
+            initAnalyzedGrains.add("18-5h-x2-2-43");
+            initAnalyzedGrains.add("18-5h-x2-2-84");
+            analyzedGrains = initAnalyzedGrains;
+        }
+        return analyzedGrains;
+    }
+
+    static ArrayList<String> rimToCoreLines = new ArrayList<>();
+
+    static ArrayList<String> getRimToCoreLines() {
+        if (rimToCoreLines.isEmpty()) {
+            ArrayList<String> initRimToCoreLines = new ArrayList<>();
+            for (String rimToCoreLineNumber : new String[]{
+                    "2", "4", "5", "8", "10", "12", "14", "16", "18", "20",
+                    "22", "24", "26", "28", "30", "31", "33", "35", "37", "39"}){
+                initRimToCoreLines.add("L" + rimToCoreLineNumber);
+            }
+            rimToCoreLines = initRimToCoreLines;
+        }
+        return rimToCoreLines;
     }
 }
