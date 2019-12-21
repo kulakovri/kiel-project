@@ -8,6 +8,7 @@ class Profile {
     boolean isContinuation;
     ArrayList<Integer> nonAnalyteValueIndexes;
     Map<String, Double> backgroundAverages = new HashMap<>();
+    private Double speedOfLaserMovementPerOneMeasure = 0.6;
 
     Profile(List<List<String>> csvData) {
         this.csvData = csvData;
@@ -16,13 +17,22 @@ class Profile {
         setNonAnalyteAreas();
     }
 
+    Profile(String csvFileName) {
+        this.csvData = CSVLoader.loadCsv("csv/" + csvFileName);
+        setBackground();
+        setBackgroundAverages();
+        setNonAnalyteAreas();
+        isFromRimToCore = isFromRimToCoreProfile(csvFileName);
+        isContinuation = isContinuationProfile(csvFileName);
+    }
+
     private void setBackground() {
         this.backgroundMin = 0;
         this.backgroundMax = getBackgroundMax();
     }
 
     private Integer getBackgroundMax() {
-        ArrayList<Double> values = getSignalValuesByName("Na23");
+        ArrayList<Double> values = getColumnValuesByName("Na23");
         Integer count = 0;
         Double comparedValue = values.get(0);
         for (Double value : values) {
@@ -45,15 +55,15 @@ class Profile {
 
     private void setNonAnalyteAreas() {
         int nonNanalyteHaloSize = 20;
-        ArrayList<Double> values = getSignalValuesByName("Na23");
+        ArrayList<Double> values = getColumnValuesByName("Na23");
         ArrayList<Integer> nonAnalyteValueIndexes = new ArrayList<>();
         int count = 0;
         for (Double value : values) {
             if (isBackground(count) || valueCloseToBackground(value)) {
                 nonAnalyteValueIndexes.add(count);
-                for (int i = -nonNanalyteHaloSize ; i < nonNanalyteHaloSize ; i ++) {
+                for (int i = -nonNanalyteHaloSize; i < nonNanalyteHaloSize; i++) {
                     int nearestMeasure = count + i;
-                    if (nearestMeasure > 0 && nearestMeasure < values.size()-1 && !nonAnalyteValueIndexes.contains(nearestMeasure)) {
+                    if (nearestMeasure > 0 && nearestMeasure < values.size() - 1 && !nonAnalyteValueIndexes.contains(nearestMeasure)) {
                         nonAnalyteValueIndexes.add(nearestMeasure);
                     }
                 }
@@ -63,16 +73,29 @@ class Profile {
         this.nonAnalyteValueIndexes = nonAnalyteValueIndexes;
     }
 
+    private boolean isFromRimToCoreProfile(String csvFileName) {
+        for (String rimToCoreLine : Store.getRimToCoreLines()) {
+            if (csvFileName.contains(rimToCoreLine)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isContinuationProfile(String csvFileName) {
+        return csvFileName.contains("a.csv");
+    }
+
     private boolean isBackground(int count) {
         return count < backgroundMin;
     }
 
-    private boolean valueCloseToBackground(Double value){
+    private boolean valueCloseToBackground(Double value) {
         return backgroundAverages.get("Na23") * 3 > value;
     }
 
     private Double calculateBackgroundAverage(String measurementName) {
-        ArrayList<Double> values = getSignalValuesByName(measurementName);
+        ArrayList<Double> values = getColumnValuesByName(measurementName);
         Integer count = 0;
         Double sum = 0.0;
         for (Double value : values) {
@@ -93,7 +116,24 @@ class Profile {
         return csvData.get(rowIndex);
     }
 
-    List<String> getMeasurementsByName(String name) {
+    private void addColumn(String name, ArrayList<Double> columnValues) {
+        boolean pastTitleRow = false;
+        int count = 0;
+        for (List<String> measurementRow : csvData) {
+            if (pastTitleRow) {
+                measurementRow.add(columnValues.get(count).toString());
+            } else if (isHeaderRow(measurementRow)) {
+                measurementRow.add(name);
+            }
+            count++;
+        }
+    }
+
+    private boolean isHeaderRow(List<String> measurementRow) {
+        return measurementRow.contains("Al27");
+    }
+
+    List<String> getColumnByName(String name) {
         List<String> measurementsByName = new ArrayList<>();
         int columnIndex = getColumnIndexByName(name);
         for (List<String> measurementRow : csvData) {
@@ -102,9 +142,9 @@ class Profile {
         return measurementsByName;
     }
 
-    ArrayList<Double> getSignalValuesByName(String name) {
+    ArrayList<Double> getColumnValuesByName(String name) {
         ArrayList<Double> cpsArray = new ArrayList<>();
-        for (String cpsString : getMeasurementsByName(name)) {
+        for (String cpsString : getColumnByName(name)) {
             try {
                 cpsArray.add(Double.parseDouble(cpsString));
             } catch (Exception e) {
@@ -127,10 +167,10 @@ class Profile {
     }
 
     Double getAnalyteAverageCps(String name) {
-        ArrayList<Double> values = getSignalValuesByName(name);
+        ArrayList<Double> values = getColumnValuesByName(name);
         int count = 0;
         double sum = 0.0;
-        for (int i = 0 ; i < values.size()-1 ; i++) {
+        for (int i = 0; i < values.size() - 1; i++) {
             if (nonAnalyteValueIndexes.contains(i)) {
                 continue;
             } else {
@@ -142,9 +182,9 @@ class Profile {
     }
 
     ArrayList<Double> getAnalyteValues(String name) {
-        ArrayList<Double> values = getSignalValuesByName(name);
+        ArrayList<Double> values = getColumnValuesByName(name);
         ArrayList<Double> analyteValues = new ArrayList<>();
-        for (int i = 0 ; i < values.size()-1 ; i++) {
+        for (int i = 0; i < values.size() - 1; i++) {
             if (nonAnalyteValueIndexes.contains(i)) {
                 continue;
             } else {
@@ -154,8 +194,8 @@ class Profile {
         return analyteValues;
     }
 
-    HashMap<String,ArrayList<Double>> getPpmValuesByName(ArrayList<String> standardCsvAddresses) {
-        HashMap<String,ArrayList<Double>> ppmValuesByElementNames = new HashMap<>();
+    HashMap<String, ArrayList<Double>> getPpmValuesByName(ArrayList<String> standardCsvAddresses) {
+        HashMap<String, ArrayList<Double>> ppmValuesByElementNames = new HashMap<>();
         for (String name : getIsotopeHeader()) {
             ppmValuesByElementNames.put(name, calculatePpmValues(standardCsvAddresses, name));
         }
@@ -195,7 +235,7 @@ class Profile {
 
     ArrayList<Double> getPpmRatio(ArrayList<Double> firstSetOfValues, ArrayList<Double> secondSetOfValues) {
         ArrayList<Double> ratioValues = new ArrayList<>();
-        for (int i = 0 ; i < firstSetOfValues.size() ; i++) {
+        for (int i = 0; i < firstSetOfValues.size(); i++) {
             Double ratioValue = firstSetOfValues.get(i) / secondSetOfValues.get(i);
             ratioValues.add(ratioValue);
         }

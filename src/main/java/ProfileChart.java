@@ -18,7 +18,7 @@ public class ProfileChart {
     }
 
     void buildCpsChart(String elementName) {
-        ArrayList<Double> cpsValues = profile.getSignalValuesByName(elementName);
+        ArrayList<Double> cpsValues = profile.getColumnValuesByName(elementName);
 
         String title = csvFileName + " - " + elementName + " CPS";
         XYChart chart = new XYChart(2000, 800);
@@ -28,7 +28,7 @@ public class ProfileChart {
         chart.addSeries("non-analyte", profile.nonAnalyteValueIndexes, getCpsValuesForIndexes(cpsValues, profile.nonAnalyteValueIndexes)).setMarker(SeriesMarkers.CIRCLE).setLineWidth(1);
         chart.getStyler().setLegendPosition(Styler.LegendPosition.InsideNE);
         try {
-            BitmapEncoder.saveBitmap(chart, getDirPath(0) + title, BitmapEncoder.BitmapFormat.GIF);
+            BitmapEncoder.saveBitmap(chart, getDirPath() + title, BitmapEncoder.BitmapFormat.GIF);
         } catch (IOException e) {
 
         }
@@ -60,7 +60,7 @@ public class ProfileChart {
         chart.addSeries("analyte", null, ppmValues);
         chart.getStyler().setLegendPosition(Styler.LegendPosition.InsideNE);
         try {
-            BitmapEncoder.saveBitmap(chart, getDirPath(0) + title.replaceAll("/", "-"), BitmapEncoder.BitmapFormat.PNG);
+            BitmapEncoder.saveBitmap(chart, getDirPath() + title.replaceAll("/", "-"), BitmapEncoder.BitmapFormat.PNG);
         } catch (IOException e) {
 
         }
@@ -86,15 +86,15 @@ public class ProfileChart {
         chart.addSeries("analyte", null, ratioValues);
         chart.getStyler().setLegendPosition(Styler.LegendPosition.InsideNE);
         try {
-            BitmapEncoder.saveBitmap(chart, getDirPath(0) + title.replaceAll("/", "-"), BitmapEncoder.BitmapFormat.PNG);
+            BitmapEncoder.saveBitmap(chart, getDirPath() + title.replaceAll("/", "-"), BitmapEncoder.BitmapFormat.PNG);
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
     }
 
     void buildCPSRatioChart(String firstElementName, String secondElementName) {
-        ArrayList<Double> firstCpsValues = profile.getSignalValuesByName(firstElementName);
-        ArrayList<Double> secondCpsValues = profile.getSignalValuesByName(secondElementName);
+        ArrayList<Double> firstCpsValues = profile.getColumnValuesByName(firstElementName);
+        ArrayList<Double> secondCpsValues = profile.getColumnValuesByName(secondElementName);
         ArrayList<Double> ratioValues = getRatio(firstCpsValues, secondCpsValues);
         String ratioName = firstElementName + "/" + secondElementName;
         String title = csvFileName + " - " + ratioName + " cps ratio";
@@ -104,27 +104,14 @@ public class ProfileChart {
         chart.addSeries("analyte", null, ratioValues);
         chart.getStyler().setLegendPosition(Styler.LegendPosition.InsideNE);
         try {
-            BitmapEncoder.saveBitmap(chart, getDirPath(0) + title.replaceAll("/", "-"), BitmapEncoder.BitmapFormat.PNG);
+            BitmapEncoder.saveBitmap(chart, getDirPath() + title.replaceAll("/", "-"), BitmapEncoder.BitmapFormat.PNG);
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
     }
 
-    private static String transactionDirPath = null;
-
-    static String getDirPath(int dirNumber) {
-        if (transactionDirPath != null) {
-            return transactionDirPath;
-        }
-        String dirPath = "./charts/" + dirNumber + "/";
-        if (new File(dirPath).exists()) {
-            dirNumber++;
-            return getDirPath(dirNumber);
-        } else {
-            new File(dirPath).mkdirs();
-            transactionDirPath = dirPath;
-            return dirPath;
-        }
+    static String getDirPath() {
+        return new IO().getDirPath("charts", 0);
     }
 
     private ArrayList<Double> getRatio(ArrayList<Double> firstSetOfValues, ArrayList<Double> secondSetOfValues) {

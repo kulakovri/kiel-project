@@ -7,6 +7,9 @@ import java.util.ArrayList;
 import java.util.TreeMap;
 
 class Templates {
+    static void testCSVBuilder() {
+        CSVBuilder.saveCsvString("hi.csv", "a,b\n1,2");
+    }
 
     static void buildChartsForAllProfilesForAllElements() {
         for (String element : new String[]{
@@ -127,7 +130,7 @@ class Templates {
         chart.addSeries("analyte", null, doubleArray);
         chart.getStyler().setLegendPosition(Styler.LegendPosition.InsideNE);
         try {
-            BitmapEncoder.saveBitmap(chart, ProfileChart.getDirPath(0) + title, BitmapEncoder.BitmapFormat.GIF);
+            BitmapEncoder.saveBitmap(chart, ProfileChart.getDirPath() + title, BitmapEncoder.BitmapFormat.GIF);
         } catch (IOException e) {
 
         }
@@ -139,7 +142,7 @@ class Templates {
         chart.addSeries("analyte", new ArrayList<>(treeMap.keySet()), new ArrayList<>(treeMap.values()));
         chart.getStyler().setLegendPosition(Styler.LegendPosition.InsideNE);
         try {
-            BitmapEncoder.saveBitmap(chart, ProfileChart.getDirPath(0) + title, BitmapEncoder.BitmapFormat.GIF);
+            BitmapEncoder.saveBitmap(chart, ProfileChart.getDirPath() + title, BitmapEncoder.BitmapFormat.GIF);
         } catch (IOException e) {
 
         }
