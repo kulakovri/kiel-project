@@ -1,23 +1,20 @@
 import java.util.*;
 
 class Profile {
-    private List<List<String>> csvData;
-    private Integer backgroundMin;
-    private Integer backgroundMax;
+    List<List<String>> csvData;
+    Integer backgroundMin;
+    Integer backgroundMax;
     boolean isFromRimToCore;
     boolean isContinuation;
+    Double initialDistanceFromRim;
+    Double endDistanceFromRim;
     ArrayList<Integer> nonAnalyteValueIndexes;
     Map<String, Double> backgroundAverages = new HashMap<>();
     private Double speedOfLaserMovementPerOneMeasure = 0.6;
-
-    Profile(List<List<String>> csvData) {
-        this.csvData = csvData;
-        setBackground();
-        setBackgroundAverages();
-        setNonAnalyteAreas();
-    }
+    String csvFileName;
 
     Profile(String csvFileName) {
+        this.csvFileName = csvFileName;
         this.csvData = CSVLoader.loadCsv("csv/" + csvFileName);
         setBackground();
         setBackgroundAverages();
@@ -54,7 +51,7 @@ class Profile {
     }
 
     private void setNonAnalyteAreas() {
-        int nonNanalyteHaloSize = 20;
+        int nonNanalyteHaloSize = 7;
         ArrayList<Double> values = getColumnValuesByName("Na23");
         ArrayList<Integer> nonAnalyteValueIndexes = new ArrayList<>();
         int count = 0;
@@ -195,11 +192,88 @@ class Profile {
     }
 
     HashMap<String, ArrayList<Double>> getPpmValuesByName(ArrayList<String> standardCsvAddresses) {
-        HashMap<String, ArrayList<Double>> ppmValuesByElementNames = new HashMap<>();
-        for (String name : getIsotopeHeader()) {
-            ppmValuesByElementNames.put(name, calculatePpmValues(standardCsvAddresses, name));
+        if (standardCsvAddresses == null) {
+            standardCsvAddresses = getStandards();
         }
-        return ppmValuesByElementNames;
+        HashMap<String, ArrayList<Double>> columnsByNames = new HashMap<>();
+        Integer mineralProfileSize = 0;
+        for (String name : getIsotopeHeader()) {
+            ArrayList<Double> ppmValuesForElement = calculatePpmValues(standardCsvAddresses, name);
+            columnsByNames.put(name, ppmValuesForElement);
+            if (mineralProfileSize == 0) {
+                mineralProfileSize = ppmValuesForElement.size();
+            }
+        }
+        columnsByNames.put("Dist from rim", getDistancesFromRim(mineralProfileSize));
+        if (isFromRimToCore) {
+            return columnsByNames;
+        } else {
+            return reverseArraysInMap(columnsByNames);
+        }
+    }
+
+    private ArrayList<String> getStandards() {
+        ArrayList<String> standardCsvAddresses = new ArrayList<>();
+        standardCsvAddresses.add(getFirstStandardForAnalyte());
+        standardCsvAddresses.add(getSecondStandardForAnalyte());
+        return standardCsvAddresses;
+    }
+
+    private ArrayList<Double> getDistancesFromRim(Integer mineralProfileSize) {
+        ArrayList<Double> distancesFromRimToCore = new ArrayList<>();
+        for (Integer i = 0 ; i < mineralProfileSize ; i++) {
+            if (isFromRimToCore) {
+                distancesFromRimToCore.add(i*speedOfLaserMovementPerOneMeasure);
+            } else {
+                distancesFromRimToCore.add((mineralProfileSize-i-1)*speedOfLaserMovementPerOneMeasure);
+            }
+        }
+        return distancesFromRimToCore;
+    }
+
+    private HashMap<String, ArrayList<Double>> reverseArraysInMap(HashMap<String, ArrayList<Double>> columnsByNames) {
+        for (String key : columnsByNames.keySet()) {
+            ArrayList<Double> column = columnsByNames.get(key);
+            Collections.reverse(column);
+            columnsByNames.put(key, column);
+        }
+        return columnsByNames;
+    }
+
+    private String getFirstStandardForAnalyte() {
+        String sphCsvName = "";
+        for (String comparedCsvFileName : CSVLoader.getListOfCsvFiles()) {
+            if (isSPHProfile(comparedCsvFileName) && isReliableSPH(comparedCsvFileName)) {
+                sphCsvName = comparedCsvFileName;
+            }
+            if (comparedCsvFileName.equals(csvFileName)) {
+                break;
+            }
+        }
+        return sphCsvName;
+    }
+
+    private String getSecondStandardForAnalyte() {
+        String sphCsvName = "";
+        boolean analytePassed = false;
+        for (String comparedCsvFileName : CSVLoader.getListOfCsvFiles()) {
+            if (comparedCsvFileName.equals(csvFileName)) {
+                analytePassed = true;
+            }
+            if (isSPHProfile(comparedCsvFileName) && isReliableSPH(comparedCsvFileName) && analytePassed) {
+                sphCsvName = comparedCsvFileName;
+                break;
+            }
+        }
+        return sphCsvName;
+    }
+
+    private boolean isSPHProfile(String csvFileName) {
+        return csvFileName.contains("SPH");
+    }
+
+    private boolean isReliableSPH(String csvFileName) {
+        return !Store.getUnreliableSPHes().contains(csvFileName);
     }
 
     ArrayList<Double> calculatePpmValues(ArrayList<String> standardCsvAddresses, String name) {
@@ -218,7 +292,7 @@ class Profile {
         Double standardAverageCps = 0.0;
         Double standardBackgroundCps = 0.0;
         for (String standardCsvAddress : standardCsvAddresses) {
-            Profile standardProfile = new Profile(CSVLoader.loadCsv(standardCsvAddress));
+            Profile standardProfile = new Profile(standardCsvAddress);
             standardAverageCps += standardProfile.getAnalyteAverageCps(name);
             standardBackgroundCps += standardProfile.backgroundAverages.get(name);
         }

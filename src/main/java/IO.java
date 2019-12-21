@@ -7,7 +7,6 @@ public class IO {
 
     }
 
-
     String getDirPath(String folderName, int dirNumber) {
         if (transactionDirPath != null) {
             return transactionDirPath;

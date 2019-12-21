@@ -7,12 +7,12 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class ProfileChart {
+public class ChartBuilder {
     String csvFileName;
     Profile profile;
 
-    ProfileChart(String csvAddress) {
-        Profile profile = new Profile(CSVLoader.loadCsv(csvAddress));
+    ChartBuilder(String csvAddress) {
+        Profile profile = new Profile(csvAddress);
         this.profile = profile;
         this.csvFileName = csvAddress.substring(4);
     }

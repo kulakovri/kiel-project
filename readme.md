@@ -34,5 +34,5 @@ Currently `Templates` includes:
 
 //currently in development
 
-createRatiosForNaMgAl() method that is creating charts for PPM ratios. specified in a ProfileChart constructor profile csv file using 
+createRatiosForNaMgAl() method that is creating charts for PPM ratios. specified in a ChartBuilder constructor profile csv file using 
 one or multiple standard csv values for calibration

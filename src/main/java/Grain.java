@@ -10,8 +10,10 @@ class Grain {
     }
 
     private void loadProfiles() {
+        System.out.println(name + ": " );
         for (String csvFileName : CSVLoader.getListOfCsvFiles()) {
             if (isForThisGrainProfile(csvFileName)) {
+                System.out.println(csvFileName);
                 Profile loadedProfile = new Profile(csvFileName);
                 profiles.add(loadedProfile);
             }
