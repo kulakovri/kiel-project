@@ -15,7 +15,7 @@ class Templates {
 
     static void testCSVBuilder() {
         Profile profile = new Profile("1-014-18-5h-1-10L6.csv");
-        CSVBuilder csvBuilder = new CSVBuilder("L6", profile.getPpmValuesByName(null));
+        CSVBuilder csvBuilder = new CSVBuilder("L6", profile.getCalculatedValuesByName(null));
         csvBuilder.buildCsvWithColumns();
     }
 

@@ -10,7 +10,7 @@ class ProfileAnalyzer {
 
     ProfileAnalyzer(Profile profile, ArrayList<String> standardCsvAddresses) {
         this.profile = profile;
-        this.ppmValuesByName = profile.getPpmValuesByName(standardCsvAddresses);
+        this.ppmValuesByName = profile.getCalculatedValuesByName(standardCsvAddresses);
         this.ppmAlRatiosByName = getPpmAlValuesByName();
     }
 

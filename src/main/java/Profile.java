@@ -6,7 +6,7 @@ class Profile {
     Integer backgroundMax;
     boolean isFromRimToCore;
     boolean isContinuation;
-    Double initialDistanceFromRim;
+    Double closestDistanceFromRim;
     Double endDistanceFromRim;
     ArrayList<Integer> nonAnalyteValueIndexes;
     Map<String, Double> backgroundAverages = new HashMap<>();
@@ -191,7 +191,7 @@ class Profile {
         return analyteValues;
     }
 
-    HashMap<String, ArrayList<Double>> getPpmValuesByName(ArrayList<String> standardCsvAddresses) {
+    HashMap<String, ArrayList<Double>> getCalculatedValuesByName(ArrayList<String> standardCsvAddresses) {
         if (standardCsvAddresses == null) {
             standardCsvAddresses = getStandards();
         }
@@ -221,11 +221,12 @@ class Profile {
 
     private ArrayList<Double> getDistancesFromRim(Integer mineralProfileSize) {
         ArrayList<Double> distancesFromRimToCore = new ArrayList<>();
+        closestDistanceFromRim = Store.getStartingDistanceFromRim(csvFileName);
         for (Integer i = 0 ; i < mineralProfileSize ; i++) {
             if (isFromRimToCore) {
-                distancesFromRimToCore.add(i*speedOfLaserMovementPerOneMeasure);
+                distancesFromRimToCore.add(i*speedOfLaserMovementPerOneMeasure + closestDistanceFromRim);
             } else {
-                distancesFromRimToCore.add((mineralProfileSize-i-1)*speedOfLaserMovementPerOneMeasure);
+                distancesFromRimToCore.add((mineralProfileSize-i-1)*speedOfLaserMovementPerOneMeasure + closestDistanceFromRim);
             }
         }
         return distancesFromRimToCore;
