@@ -8,9 +8,9 @@ class Profile {
     boolean isContinuation;
     Double closestDistanceFromRim;
     Double endDistanceFromRim;
+    Double profileLength;
     ArrayList<Integer> nonAnalyteValueIndexes;
     Map<String, Double> backgroundAverages = new HashMap<>();
-    private Double speedOfLaserMovementPerOneMeasure = 0.6;
     String csvFileName;
 
     Profile(String csvFileName) {
@@ -21,6 +21,7 @@ class Profile {
         setNonAnalyteAreas();
         isFromRimToCore = isFromRimToCoreProfile(csvFileName);
         isContinuation = isContinuationProfile(csvFileName);
+        profileLength = Store.getProfileLength(csvFileName);
     }
 
     private void setBackground() {
@@ -51,7 +52,7 @@ class Profile {
     }
 
     private void setNonAnalyteAreas() {
-        int nonNanalyteHaloSize = 7;
+        int nonNanalyteHaloSize = 15;
         ArrayList<Double> values = getColumnValuesByName("Na23");
         ArrayList<Integer> nonAnalyteValueIndexes = new ArrayList<>();
         int count = 0;
@@ -72,7 +73,8 @@ class Profile {
 
     private boolean isFromRimToCoreProfile(String csvFileName) {
         for (String rimToCoreLine : Store.getRimToCoreLines()) {
-            if (csvFileName.contains(rimToCoreLine)) {
+            if (csvFileName.contains(rimToCoreLine + ".csv") || csvFileName.contains(rimToCoreLine + "a.csv")) {
+
                 return true;
             }
         }
@@ -191,7 +193,8 @@ class Profile {
         return analyteValues;
     }
 
-    HashMap<String, ArrayList<Double>> getCalculatedValuesByName(ArrayList<String> standardCsvAddresses) {
+    HashMap<String, ArrayList<Double>> getCalculatedValuesByName(ArrayList<String> standardCsvAddresses, Double closestDistanceFromRim) {
+        this.closestDistanceFromRim = closestDistanceFromRim;
         if (standardCsvAddresses == null) {
             standardCsvAddresses = getStandards();
         }
@@ -221,7 +224,8 @@ class Profile {
 
     private ArrayList<Double> getDistancesFromRim(Integer mineralProfileSize) {
         ArrayList<Double> distancesFromRimToCore = new ArrayList<>();
-        closestDistanceFromRim = Store.getStartingDistanceFromRim(csvFileName);
+        Double speedOfLaserMovementPerOneMeasure = getLaserMovementSpeed(mineralProfileSize);
+        System.out.println(csvFileName + " distance from rim: " + closestDistanceFromRim + " isFromRimToCore: " + isFromRimToCore + " isContinuation" + isContinuation);
         for (Integer i = 0 ; i < mineralProfileSize ; i++) {
             if (isFromRimToCore) {
                 distancesFromRimToCore.add(i*speedOfLaserMovementPerOneMeasure + closestDistanceFromRim);
@@ -230,6 +234,10 @@ class Profile {
             }
         }
         return distancesFromRimToCore;
+    }
+
+    private Double getLaserMovementSpeed(Integer mineralProfileSize) {
+        return profileLength / mineralProfileSize;
     }
 
     private HashMap<String, ArrayList<Double>> reverseArraysInMap(HashMap<String, ArrayList<Double>> columnsByNames) {

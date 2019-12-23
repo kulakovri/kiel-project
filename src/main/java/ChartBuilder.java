@@ -88,7 +88,7 @@ public class ChartBuilder {
         try {
             BitmapEncoder.saveBitmap(chart, getDirPath() + title.replaceAll("/", "-"), BitmapEncoder.BitmapFormat.PNG);
         } catch (IOException e) {
-            System.out.println(e.getMessage());
+
         }
     }
 
@@ -106,7 +106,7 @@ public class ChartBuilder {
         try {
             BitmapEncoder.saveBitmap(chart, getDirPath() + title.replaceAll("/", "-"), BitmapEncoder.BitmapFormat.PNG);
         } catch (IOException e) {
-            System.out.println(e.getMessage());
+
         }
     }
 

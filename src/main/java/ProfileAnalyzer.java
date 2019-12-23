@@ -10,7 +10,7 @@ class ProfileAnalyzer {
 
     ProfileAnalyzer(Profile profile, ArrayList<String> standardCsvAddresses) {
         this.profile = profile;
-        this.ppmValuesByName = profile.getCalculatedValuesByName(standardCsvAddresses);
+        this.ppmValuesByName = profile.getCalculatedValuesByName(null,0.0);
         this.ppmAlRatiosByName = getPpmAlValuesByName();
     }
 
@@ -44,11 +44,9 @@ class ProfileAnalyzer {
         ArrayList<Integer> angleIndexes = angleFinder.angleIndexes;
         Collections.sort(angleIndexes);
 
-        System.out.println("Iteration count: " + count);
         TreeMap<Integer, Double> outputHashMap = new TreeMap<>();
 
         for (Integer extreme : angleFinder.angleIndexes) {
-            System.out.println(extreme+","+sequenceValues.get(extreme));
             outputHashMap.put(extreme, sequenceValues.get(extreme));
         }
 

@@ -10,13 +10,14 @@ class Templates {
     static void loadGrains() {
         for (String grainName : Store.getAnalyzedGrains()) {
             Grain grain = new Grain(grainName);
+            grain.buildGrainCsv();
         }
     }
 
     static void testCSVBuilder() {
         Profile profile = new Profile("1-014-18-5h-1-10L6.csv");
-        CSVBuilder csvBuilder = new CSVBuilder("L6", profile.getCalculatedValuesByName(null));
-        csvBuilder.buildCsvWithColumns();
+        CSVBuilder csvBuilder = new CSVBuilder("L6", profile.getCalculatedValuesByName(null, 0.0));
+        csvBuilder.saveCsvString();
     }
 
     static void buildChartsForAllProfilesForAllElements() {
@@ -33,7 +34,7 @@ class Templates {
         for (String csvFileName : CSVLoader.getListOfCsvFiles()) {
             String csvFilePath = "csv/" + csvFileName;
             if (isAnalyteProfile(csvFileName)) {
-                System.out.println("Analyte: " + csvFileName);
+
                 ChartBuilder chartBuilder = new ChartBuilder(csvFilePath);
                 ArrayList<String> standards = new ArrayList<>();
                 standards.add(getFirstStandardForAnalyte(csvFileName));
@@ -41,7 +42,7 @@ class Templates {
                 try {
                     chartBuilder.buildPpmChart(standards, elementName);
                 } catch (Exception e) {
-                    System.out.println(e.getMessage());
+
                 }
 
             }

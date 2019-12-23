@@ -4,32 +4,64 @@ import java.util.HashMap;
 class Grain {
     String name;
     ArrayList<Profile> profiles = new ArrayList<>();
-    HashMap<String, ArrayList<Double>> fromCoreToRimProfile;
-    HashMap<String, ArrayList<Double>> fromRimToCoreProfile;
+    HashMap<String, ArrayList<Double>> fromCoreToRimProfileInitial;
+    HashMap<String, ArrayList<Double>> fromRimToCoreProfileInitial;
+    HashMap<String, ArrayList<Double>> fromCoreToRimProfileContinued;
+    HashMap<String, ArrayList<Double>> fromRimToCoreProfileContinued;
+
 
     Grain(String name) {
         this.name = name;
         loadProfiles();
+        getCalculations();
+    }
+
+    void buildGrainCsv() {
+        ArrayList<CSVBuilder> csvBuilders = new ArrayList<>();
+        for (Profile profile : profiles) {
+            if (profile.isFromRimToCore) {
+                if (profile.isContinuation) {
+                    if (!fromRimToCoreProfileContinued.isEmpty()) {
+                        csvBuilders.add(new CSVBuilder(profile.csvFileName, fromRimToCoreProfileContinued));
+                    }
+                } else {
+                    if (!fromRimToCoreProfileInitial.isEmpty()) {
+                        csvBuilders.add(new CSVBuilder(profile.csvFileName, fromRimToCoreProfileInitial));
+                    }
+                }
+            } else {
+                if (profile.isContinuation) {
+                    if (!fromCoreToRimProfileContinued.isEmpty()) {
+                        csvBuilders.add(new CSVBuilder(profile.csvFileName, fromCoreToRimProfileContinued));
+                    }
+                } else {
+                    if (!fromCoreToRimProfileInitial.isEmpty()) {
+                        csvBuilders.add(new CSVBuilder(profile.csvFileName, fromCoreToRimProfileInitial));
+                    }
+                }
+            }
+        }
+        CSVBuilder.buildJoinedCsv(name, csvBuilders);
     }
 
     private void loadProfiles() {
-        System.out.println(name + ": " );
+
         for (String csvFileName : CSVLoader.getListOfCsvFiles()) {
             if (isForThisGrainProfile(csvFileName)) {
-                System.out.println(csvFileName);
+
                 Profile loadedProfile = new Profile(csvFileName);
                 profiles.add(loadedProfile);
             }
         }
     }
 
-    void getCalculations() {
+    private void getCalculations() {
         if (profiles.size() < 3) {
             for (Profile profile : profiles) {
                 if (profile.isFromRimToCore) {
-                    fromRimToCoreProfile = profile.getCalculatedValuesByName(null);
+                    fromRimToCoreProfileInitial = profile.getCalculatedValuesByName(null, 0.0);
                 } else {
-                    fromCoreToRimProfile = profile.getCalculatedValuesByName(null);
+                    fromCoreToRimProfileInitial = profile.getCalculatedValuesByName(null, 0.0);
                 }
             }
         } else {
@@ -40,16 +72,22 @@ class Grain {
     void compileCalculations() {
         ProfileCompiler fromRimToCoreCompiler = new ProfileCompiler(true);
         ProfileCompiler fromCoreToRimCompiler = new ProfileCompiler(false);
-
         for (Profile profile : profiles) {
             if (profile.isFromRimToCore) {
-                fromRimToCoreCompiler.addProfileToCompile(profile.getCalculatedValuesByName(null), profile.isContinuation);
+                //System.out.println("Adding from rim to Core line: " + profile.csvFileName);
+                fromRimToCoreCompiler.addProfileToCompile(profile);
             } else {
-                fromCoreToRimCompiler.addProfileToCompile(profile.getCalculatedValuesByName(null), profile.isContinuation);
+                //System.out.println("Adding from core to rim line: " + profile.csvFileName);
+                fromCoreToRimCompiler.addProfileToCompile(profile);
             }
         }
-        fromRimToCoreProfile = fromRimToCoreCompiler.getCompiled();
-        fromCoreToRimProfile = fromCoreToRimCompiler.getCompiled();
+        fromRimToCoreCompiler.getCompiled();
+        fromCoreToRimCompiler.getCompiled();
+
+        fromCoreToRimProfileInitial = fromCoreToRimCompiler.initialProfileData;
+        fromRimToCoreProfileInitial = fromRimToCoreCompiler.initialProfileData;
+        fromCoreToRimProfileContinued = fromCoreToRimCompiler.continuedProfileData;
+        fromRimToCoreProfileContinued = fromRimToCoreCompiler.continuedProfileData;
     }
 
     private boolean isForThisGrainProfile(String csvFileName) {

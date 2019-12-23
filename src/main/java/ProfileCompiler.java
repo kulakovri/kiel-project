@@ -3,25 +3,40 @@ import java.util.HashMap;
 
 class ProfileCompiler {
     boolean isFromRimToCore;
-    HashMap<String, ArrayList<Double>> initialProfile;
-    HashMap<String, ArrayList<Double>> continuedProfile;
+    Profile initialProfile;
+    Profile continuedProfile;
+
+    HashMap<String, ArrayList<Double>> initialProfileData = new HashMap<>();
+    HashMap<String, ArrayList<Double>> continuedProfileData = new HashMap<>();
+
 
     ProfileCompiler(boolean isFromRimToCore) {
         this.isFromRimToCore = isFromRimToCore;
     }
 
-    void addProfileToCompile(HashMap<String, ArrayList<Double>> profile, boolean isContinuation) {
-        if (isContinuation) {
+    void addProfileToCompile(Profile profile) {
+        if (profile.isContinuation) {
             continuedProfile = profile;
         } else {
             initialProfile = profile;
         }
     }
 
-    HashMap<String, ArrayList<Double>> getCompiled() {
-        HashMap<String, ArrayList<Double>> compiledPrifile = new HashMap<>();
+    void getCompiled() {
+        if (continuedProfile == null) {
+            initialProfileData = initialProfile.getCalculatedValuesByName(null, 0.0);
+            return;
+        }
+        Double overlap = Store.getLineOverlap(continuedProfile.csvFileName);
 
-
-        return compiledPrifile;
+        Double initialProfileLength = initialProfile.profileLength;
+        Double continuedProfileLength = continuedProfile.profileLength;
+        if (isFromRimToCore) {
+            initialProfileData = initialProfile.getCalculatedValuesByName(null, 0.0);
+            continuedProfileData = continuedProfile.getCalculatedValuesByName(null, initialProfileLength-overlap);
+        } else {
+            initialProfileData = initialProfile.getCalculatedValuesByName(null, continuedProfileLength-overlap);
+            continuedProfileData = continuedProfile.getCalculatedValuesByName(null, 0.0);
+        }
     }
 }

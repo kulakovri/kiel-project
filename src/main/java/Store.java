@@ -81,44 +81,6 @@ public class Store {
         }
         return analyzedGrains;
     }
-    static TreeMap<String, Double> closestDistancesFromRim = new TreeMap<>();
-
-    static Double getStartingDistanceFromRim(String csvFileName) {
-        if (closestDistancesFromRim.isEmpty()) {
-            TreeMap<String, Double> initClosestDistancesFromRim = new TreeMap<>();
-            initClosestDistancesFromRim.put("1-007-18-5h-1-2L1.csv", 450.0);
-            initClosestDistancesFromRim.put("1-010-18-5h-1-2L2a.csv", 460.0);
-            initClosestDistancesFromRim.put("1-019-18-5h-x2-1-5L7.csv", 460.0);
-            initClosestDistancesFromRim.put("1-022-18-5h-x2-1-5L8a.csv", 450.0);
-            initClosestDistancesFromRim.put("1-025-18-5h-x2-1-25L11.csv", 250.0);
-            initClosestDistancesFromRim.put("1-028-18-5h-x2-1-25L12a.csv", 460.0);
-            initClosestDistancesFromRim.put("1-032-VK18-5h-x3-1-10L15.csv", 300.0);
-            initClosestDistancesFromRim.put("1-035-18-5h-x3-1-10L16a.csv", 450.0);
-            initClosestDistancesFromRim.put("1-036-18-5h-x3-1-12L17.csv", 290.0);
-            initClosestDistancesFromRim.put("1-039-18-5h-x3-1-12L18a.csv", 460.0);
-            initClosestDistancesFromRim.put("2-005-VK18-3a-1-8L19.csv", 400.0);
-            initClosestDistancesFromRim.put("2-008-VK18-3a-1-8L20a.csv", 380.0);
-            initClosestDistancesFromRim.put("2-009-VK18-3a-2-2L21.csv", 380.0);
-            initClosestDistancesFromRim.put("2-012-VK18-3a-2-2L22a.csv", 460.0);
-            initClosestDistancesFromRim.put("2-013-VK18-3a-2-5L23.csv", 470.0);
-            initClosestDistancesFromRim.put("2-016-VK18-3a-2-5L24a.csv", 465.0);
-            initClosestDistancesFromRim.put("2-029-VK18-5h-x3-1-53L31a.csv", 700.0);
-            initClosestDistancesFromRim.put("2-030-VK18-5h-x3-1-54L32.csv", 430.0);
-            initClosestDistancesFromRim.put("2-035-VK18-5h-x2-2-41L34.csv", 460.0);
-            initClosestDistancesFromRim.put("2-038-VK18-5h-x2-2-41L35a.csv", 430.0);
-            initClosestDistancesFromRim.put("2-039-VK18-5h-x2-2-43L36.csv", 200.0);
-            initClosestDistancesFromRim.put("2-042-VK18-5h-x2-2-43L37a.csv", 470.0);
-            initClosestDistancesFromRim.put("2-043-VK18-5h-x2-2-84L38.csv", 500.0);
-            initClosestDistancesFromRim.put("2-046-VK18-5h-x2-2-84L39a.csv", 400.0);
-            closestDistancesFromRim = initClosestDistancesFromRim;
-        }
-        Double distanceFromRim = closestDistancesFromRim.get(csvFileName);
-        if (distanceFromRim == null) {
-            return 0.0;
-        } else {
-            return distanceFromRim;
-        }
-    }
 
     static TreeMap<String, Double> profileLengths = new TreeMap<>();
 
@@ -208,11 +170,11 @@ public class Store {
             initLineOverlaps.put("2-044-VK18-5h-x2-2-84L38a.csv", 35.4);
             lineOverlaps = initLineOverlaps;
         }
-        Double distanceFromRim = lineOverlaps.get(csvFileName);
-        if (distanceFromRim == null) {
+        Double lineOverlap = lineOverlaps.get(csvFileName);
+        if (lineOverlap == null) {
             return 0.0;
         } else {
-            return distanceFromRim;
+            return lineOverlap;
         }
     }
 
