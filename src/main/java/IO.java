@@ -1,7 +1,7 @@
 import java.io.File;
 
 public class IO {
-    private String transactionDirPath = null;
+    private static String transactionDirPath = null;
 
     IO() {
 

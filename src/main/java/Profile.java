@@ -12,6 +12,7 @@ class Profile {
     ArrayList<Integer> nonAnalyteValueIndexes;
     Map<String, Double> backgroundAverages = new HashMap<>();
     String csvFileName;
+    ArrayList<Double> cpsSums = new ArrayList<>();
 
     Profile(String csvFileName) {
         this.csvFileName = csvFileName;
@@ -19,9 +20,22 @@ class Profile {
         setBackground();
         setBackgroundAverages();
         setNonAnalyteAreas();
+        calculateCPSSums();
         isFromRimToCore = isFromRimToCoreProfile(csvFileName);
         isContinuation = isContinuationProfile(csvFileName);
         profileLength = Store.getProfileLength(csvFileName);
+    }
+
+    void calculateCPSSums() {
+        for (int rowIndex = 1 ; rowIndex < csvData.size() ; rowIndex++) {
+            Double cpsSum = 0.0;
+            List<String> measurementRow = getMeasurementRow(rowIndex);
+            for (int columnIndex = 1 ; columnIndex < measurementRow.size() ; columnIndex++) {
+                Double cps = Double.valueOf(measurementRow.get(columnIndex));
+                cpsSum += cps;
+            }
+            cpsSums.add(cpsSum);
+        }
     }
 
     private void setBackground() {
@@ -30,7 +44,7 @@ class Profile {
     }
 
     private Integer getBackgroundMax() {
-        ArrayList<Double> values = getColumnValuesByName("Na23");
+        ArrayList<Double> values = getCpsPercentByName("Na23");
         Integer count = 0;
         Double comparedValue = values.get(0);
         for (Double value : values) {
@@ -53,7 +67,7 @@ class Profile {
 
     private void setNonAnalyteAreas() {
         int nonNanalyteHaloSize = 15;
-        ArrayList<Double> values = getColumnValuesByName("Na23");
+        ArrayList<Double> values = getCpsPercentByName("Na23");
         ArrayList<Integer> nonAnalyteValueIndexes = new ArrayList<>();
         int count = 0;
         for (Double value : values) {
@@ -94,7 +108,7 @@ class Profile {
     }
 
     private Double calculateBackgroundAverage(String measurementName) {
-        ArrayList<Double> values = getColumnValuesByName(measurementName);
+        ArrayList<Double> values = getCpsPercentByName(measurementName);
         Integer count = 0;
         Double sum = 0.0;
         for (Double value : values) {
@@ -153,6 +167,18 @@ class Profile {
         return cpsArray;
     }
 
+    public ArrayList<Double> getCpsPercentByName(String name) {
+        ArrayList<Double> columnValues = getColumnValuesByName(name);
+        ArrayList<Double> cpsPercentages = new ArrayList<>();
+        for (int i = 0 ; i < columnValues.size() ; i++) {
+            Double value = columnValues.get(i);
+            Double sum = cpsSums.get(i);
+            Double cpsPercentage = (100 / sum) * value;
+            cpsPercentages.add(cpsPercentage);
+        }
+        return cpsPercentages;
+    }
+
     private int getColumnIndexByName(String lookupName) {
         int columnIndex = 0;
         for (String nameInHeader : getIsotopeHeader()) {
@@ -166,7 +192,7 @@ class Profile {
     }
 
     Double getAnalyteAverageCps(String name) {
-        ArrayList<Double> values = getColumnValuesByName(name);
+        ArrayList<Double> values = getCpsPercentByName(name);
         int count = 0;
         double sum = 0.0;
         for (int i = 0; i < values.size() - 1; i++) {
@@ -181,7 +207,7 @@ class Profile {
     }
 
     ArrayList<Double> getAnalyteValues(String name) {
-        ArrayList<Double> values = getColumnValuesByName(name);
+        ArrayList<Double> values = getCpsPercentByName(name);
         ArrayList<Double> analyteValues = new ArrayList<>();
         for (int i = 0; i < values.size() - 1; i++) {
             if (nonAnalyteValueIndexes.contains(i)) {
