@@ -17,16 +17,17 @@ class Profile {
     Profile(String csvFileName) {
         this.csvFileName = csvFileName;
         this.csvData = CSVLoader.loadCsv("csv/" + csvFileName);
+        calculateCPSSums();
         setBackground();
         setBackgroundAverages();
         setNonAnalyteAreas();
-        calculateCPSSums();
         isFromRimToCore = isFromRimToCoreProfile(csvFileName);
         isContinuation = isContinuationProfile(csvFileName);
         profileLength = Store.getProfileLength(csvFileName);
     }
 
     void calculateCPSSums() {
+        System.out.println("csvData.size(): " + csvData.size());
         for (int rowIndex = 1 ; rowIndex < csvData.size() ; rowIndex++) {
             Double cpsSum = 0.0;
             List<String> measurementRow = getMeasurementRow(rowIndex);
@@ -168,6 +169,7 @@ class Profile {
     }
 
     public ArrayList<Double> getCpsPercentByName(String name) {
+        System.out.println(name);
         ArrayList<Double> columnValues = getColumnValuesByName(name);
         ArrayList<Double> cpsPercentages = new ArrayList<>();
         for (int i = 0 ; i < columnValues.size() ; i++) {

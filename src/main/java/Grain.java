@@ -48,7 +48,6 @@ class Grain {
 
         for (String csvFileName : CSVLoader.getListOfCsvFiles()) {
             if (isForThisGrainProfile(csvFileName)) {
-
                 Profile loadedProfile = new Profile(csvFileName);
                 profiles.add(loadedProfile);
             }
