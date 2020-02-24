@@ -9,8 +9,13 @@ import java.util.TreeMap;
 class Templates {
     static void loadGrains() {
         for (String grainName : Store.getAnalyzedGrains()) {
-            Grain grain = new Grain(grainName);
-            grain.buildGrainCsv();
+            try {
+                Grain grain = new Grain(grainName);
+                grain.buildGrainCsv();
+            } catch (Exception e) {
+                System.out.println(grainName + " has failed to be calculated");
+            }
+
         }
     }
 
@@ -32,9 +37,8 @@ class Templates {
 
     static void buildChartsForAllProfiles(String elementName) {
         for (String csvFileName : CSVLoader.getListOfCsvFiles()) {
-            String csvFilePath = "csv/" + csvFileName;
+            String csvFilePath = csvFileName;
             if (isAnalyteProfile(csvFileName)) {
-
                 ChartBuilder chartBuilder = new ChartBuilder(csvFilePath);
                 ArrayList<String> standards = new ArrayList<>();
                 standards.add(getFirstStandardForAnalyte(csvFileName));

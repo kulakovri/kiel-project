@@ -37,11 +37,19 @@ class Profile {
                 continue;
             }
             Double analyteBackgroundAverageCps = this.backgroundAverages.get(elementName);
+
             for (Double value : getAnalyteValues(elementName)) {
                 Double valueMinusBackground = value - analyteBackgroundAverageCps;
                 analyteCpsValuesMinusBackgroundByElement.computeIfAbsent(elementName, k -> new ArrayList<>()).add(valueMinusBackground);
             }
-            analyteSize = analyteCpsValuesMinusBackgroundByElement.get(elementName).size();
+            if (analyteSize == 0) {
+                try {
+                    analyteSize = analyteCpsValuesMinusBackgroundByElement.get(elementName).size();
+                } catch (Exception e) {
+
+                }
+
+            }
         }
     }
 
