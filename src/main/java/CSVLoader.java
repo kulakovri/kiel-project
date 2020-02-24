@@ -21,7 +21,6 @@ class CSVLoader {
                     "'Fe': 55.845, 'Ni': 58.693, 'Sr': 103.62";
 
     static List<List<String>> loadCsv(String csvAddress) {
-        System.out.println(csvAddress);
         return loadProfileData(csvAddress);
     }
 
@@ -65,7 +64,6 @@ class CSVLoader {
             }
             if (convertedRow.size() > 5) convertedEntry.add(convertedRow);
         }
-        System.out.println(convertedEntry.size());
         return convertedEntry;
     }
 

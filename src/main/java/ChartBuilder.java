@@ -34,23 +34,6 @@ public class ChartBuilder {
         }
     }
 
-    void buildCpsPercentageChart(String elementName) {
-        ArrayList<Double> cpsValues = profile.getCpsPercentByName(elementName);
-
-        String title = csvFileName + " - " + elementName + " % of CPS";
-        XYChart chart = new XYChart(2000, 800);
-        chart.setTitle(title);
-        chart.setYAxisTitle(elementName + " CPS");
-        chart.addSeries("analyte", getXdataForYValues(cpsValues), cpsValues);
-        chart.addSeries("non-analyte", profile.nonAnalyteValueIndexes, getCpsValuesForIndexes(cpsValues, profile.nonAnalyteValueIndexes)).setMarker(SeriesMarkers.CIRCLE).setLineWidth(1);
-        chart.getStyler().setLegendPosition(Styler.LegendPosition.InsideNE);
-        try {
-            BitmapEncoder.saveBitmap(chart, getDirPath() + title, BitmapEncoder.BitmapFormat.GIF);
-        } catch (IOException e) {
-
-        }
-    }
-
     private ArrayList<Integer> getXdataForYValues(ArrayList<Double> values) {
         ArrayList<Integer> xData = new ArrayList<>();
         for (int i = 1 ; i < values.size()+1 ; i++) {
@@ -110,8 +93,8 @@ public class ChartBuilder {
     }
 
     void buildCPSRatioChart(String firstElementName, String secondElementName) {
-        ArrayList<Double> firstCpsValues = profile.getCpsPercentByName(firstElementName);
-        ArrayList<Double> secondCpsValues = profile.getCpsPercentByName(secondElementName);
+        ArrayList<Double> firstCpsValues = profile.getColumnValuesByName(firstElementName);
+        ArrayList<Double> secondCpsValues = profile.getColumnValuesByName(secondElementName);
         ArrayList<Double> ratioValues = getRatio(firstCpsValues, secondCpsValues);
         String ratioName = firstElementName + "/" + secondElementName;
         String title = csvFileName + " - " + ratioName + " cps ratio";

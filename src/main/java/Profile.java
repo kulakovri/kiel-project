@@ -11,31 +11,64 @@ class Profile {
     Double profileLength;
     ArrayList<Integer> nonAnalyteValueIndexes;
     Map<String, Double> backgroundAverages = new HashMap<>();
+    HashMap<String, ArrayList<Double>> analyteCpsValuesMinusBackgroundByElement = new HashMap<>();
+    Integer analyteSize = 0;
+    ArrayList<Double> analyteCpsValuesMinusBackgroundSums = new ArrayList<>();
+    HashMap<String, ArrayList<Double>> analyteCpsValuesMinusBackgroundInPercents = new HashMap<>();
     String csvFileName;
-    ArrayList<Double> cpsSums = new ArrayList<>();
 
     Profile(String csvFileName) {
         this.csvFileName = csvFileName;
         this.csvData = CSVLoader.loadCsv("csv/" + csvFileName);
-        calculateCPSSums();
         setBackground();
         setBackgroundAverages();
         setNonAnalyteAreas();
+        setAnalyteValuesMinusBackground();
+        setAnalyteValuesMinusBackgroundSums();
+        setAnalyteCPSPercents();
         isFromRimToCore = isFromRimToCoreProfile(csvFileName);
         isContinuation = isContinuationProfile(csvFileName);
         profileLength = Store.getProfileLength(csvFileName);
     }
 
-    void calculateCPSSums() {
-        System.out.println("csvData.size(): " + csvData.size());
-        for (int rowIndex = 1 ; rowIndex < csvData.size() ; rowIndex++) {
-            Double cpsSum = 0.0;
-            List<String> measurementRow = getMeasurementRow(rowIndex);
-            for (int columnIndex = 1 ; columnIndex < measurementRow.size() ; columnIndex++) {
-                Double cps = Double.valueOf(measurementRow.get(columnIndex));
-                cpsSum += cps;
+    private void setAnalyteValuesMinusBackground() {
+        for (String elementName : getIsotopeHeader()) {
+            if (elementName.equals("Time [Sec]")) {
+                continue;
             }
-            cpsSums.add(cpsSum);
+            Double analyteBackgroundAverageCps = this.backgroundAverages.get(elementName);
+            for (Double value : getAnalyteValues(elementName)) {
+                Double valueMinusBackground = value - analyteBackgroundAverageCps;
+                analyteCpsValuesMinusBackgroundByElement.computeIfAbsent(elementName, k -> new ArrayList<>()).add(valueMinusBackground);
+            }
+            analyteSize = analyteCpsValuesMinusBackgroundByElement.get(elementName).size();
+        }
+    }
+
+    private void setAnalyteValuesMinusBackgroundSums() {
+        for (int i = 0 ; i < analyteSize ; i++) {
+            Double sum = 0.0;
+            for (String elementName : getIsotopeHeader()) {
+                if (elementName.equals("Time [Sec]")) {
+                    continue;
+                }
+                sum += analyteCpsValuesMinusBackgroundByElement.get(elementName).get(i);
+            }
+            analyteCpsValuesMinusBackgroundSums.add(sum);
+        }
+    }
+
+    private void setAnalyteCPSPercents() {
+        for (int i = 0 ; i < analyteCpsValuesMinusBackgroundSums.size() ; i++) {
+            Double sum = analyteCpsValuesMinusBackgroundSums.get(i);
+            for (String elementName : getIsotopeHeader()) {
+                if (elementName.equals("Time [Sec]")) {
+                    continue;
+                }
+                Double value = analyteCpsValuesMinusBackgroundByElement.get(elementName).get(i);
+                Double percent = (100 / sum) * value;
+                analyteCpsValuesMinusBackgroundInPercents.computeIfAbsent(elementName, k-> new ArrayList<>()).add(percent);
+            }
         }
     }
 
@@ -45,7 +78,7 @@ class Profile {
     }
 
     private Integer getBackgroundMax() {
-        ArrayList<Double> values = getCpsPercentByName("Na23");
+        ArrayList<Double> values = getColumnValuesByName("Na23");
         Integer count = 0;
         Double comparedValue = values.get(0);
         for (Double value : values) {
@@ -68,7 +101,7 @@ class Profile {
 
     private void setNonAnalyteAreas() {
         int nonNanalyteHaloSize = 15;
-        ArrayList<Double> values = getCpsPercentByName("Na23");
+        ArrayList<Double> values = getColumnValuesByName("Na23");
         ArrayList<Integer> nonAnalyteValueIndexes = new ArrayList<>();
         int count = 0;
         for (Double value : values) {
@@ -109,7 +142,7 @@ class Profile {
     }
 
     private Double calculateBackgroundAverage(String measurementName) {
-        ArrayList<Double> values = getCpsPercentByName(measurementName);
+        ArrayList<Double> values = getColumnValuesByName(measurementName);
         Integer count = 0;
         Double sum = 0.0;
         for (Double value : values) {
@@ -168,19 +201,6 @@ class Profile {
         return cpsArray;
     }
 
-    public ArrayList<Double> getCpsPercentByName(String name) {
-        System.out.println(name);
-        ArrayList<Double> columnValues = getColumnValuesByName(name);
-        ArrayList<Double> cpsPercentages = new ArrayList<>();
-        for (int i = 0 ; i < columnValues.size() ; i++) {
-            Double value = columnValues.get(i);
-            Double sum = cpsSums.get(i);
-            Double cpsPercentage = (100 / sum) * value;
-            cpsPercentages.add(cpsPercentage);
-        }
-        return cpsPercentages;
-    }
-
     private int getColumnIndexByName(String lookupName) {
         int columnIndex = 0;
         for (String nameInHeader : getIsotopeHeader()) {
@@ -194,7 +214,22 @@ class Profile {
     }
 
     Double getAnalyteAverageCps(String name) {
-        ArrayList<Double> values = getCpsPercentByName(name);
+        ArrayList<Double> values = getColumnValuesByName(name);
+        int count = 0;
+        double sum = 0.0;
+        for (int i = 0; i < values.size() - 1; i++) {
+            if (nonAnalyteValueIndexes.contains(i)) {
+                continue;
+            } else {
+                sum += values.get(i);
+                count++;
+            }
+        }
+        return sum / count;
+    }
+
+    Double getAnalyteAverageCpsMinusBackgroundInPercents(String name) {
+        ArrayList<Double> values = analyteCpsValuesMinusBackgroundInPercents.get(name);
         int count = 0;
         double sum = 0.0;
         for (int i = 0; i < values.size() - 1; i++) {
@@ -209,7 +244,7 @@ class Profile {
     }
 
     ArrayList<Double> getAnalyteValues(String name) {
-        ArrayList<Double> values = getCpsPercentByName(name);
+        ArrayList<Double> values = getColumnValuesByName(name);
         ArrayList<Double> analyteValues = new ArrayList<>();
         for (int i = 0; i < values.size() - 1; i++) {
             if (nonAnalyteValueIndexes.contains(i)) {
@@ -317,9 +352,9 @@ class Profile {
         ArrayList<Double> ppmValues = new ArrayList<>();
         Double standardsAverageCpsMinusBackground = getStandardsAverageCpsMinusBackground(standardCsvAddresses, name);
         Double ppmValue = Store.getSphPpmMap().get(name.replaceAll("[0-9]", ""));
-        Double analyteBackgroundAverageCps = this.backgroundAverages.get(name);
-        for (Double analyteValue : getAnalyteValues(name)) {
-            Double calculatedValue = ppmValue * (analyteValue - analyteBackgroundAverageCps) / standardsAverageCpsMinusBackground;
+        ArrayList<Double> analyteValuesMinusBackgroundInPercents = analyteCpsValuesMinusBackgroundInPercents.get(name);
+        for (Double analyteValue : analyteValuesMinusBackgroundInPercents) {
+            Double calculatedValue = ppmValue * (analyteValue) / standardsAverageCpsMinusBackground;
             ppmValues.add(calculatedValue);
         }
         return ppmValues;
@@ -327,15 +362,11 @@ class Profile {
 
     private Double getStandardsAverageCpsMinusBackground(ArrayList<String> standardCsvAddresses, String name) {
         Double standardAverageCps = 0.0;
-        Double standardBackgroundCps = 0.0;
         for (String standardCsvAddress : standardCsvAddresses) {
             Profile standardProfile = new Profile(standardCsvAddress);
-            standardAverageCps += standardProfile.getAnalyteAverageCps(name);
-            standardBackgroundCps += standardProfile.backgroundAverages.get(name);
+            standardAverageCps += standardProfile.getAnalyteAverageCpsMinusBackgroundInPercents(name);
         }
-        standardAverageCps = standardAverageCps / standardCsvAddresses.size();
-        standardBackgroundCps = standardBackgroundCps / standardCsvAddresses.size();
-        return standardAverageCps - standardBackgroundCps;
+        return standardAverageCps / standardCsvAddresses.size();
     }
 
     ArrayList<Double> getPpmRatioValues(ArrayList<String> standardCsvAddresses, String firstElementName, String secondElementName) {

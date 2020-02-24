@@ -106,19 +106,9 @@ class Templates {
         chartBuilder.buildCPSRatioChart("Na23" ,"Al27");
     }
 
-    static void createSPHCharts() {
-        for (String csvFileName : CSVLoader.getListOfCsvFiles()) {
-            if (csvFileName.contains("SPH")) {
-                ChartBuilder chartBuilder = new ChartBuilder(csvFileName);
-                chartBuilder.buildCpsPercentageChart("Al27");
-            }
-        }
-    }
-
     static void createNISTCharts() {
         for (String csvFileName : CSVLoader.getListOfCsvFiles()) {
             if (csvFileName.contains("NIST") || csvFileName.contains("610")) {
-                System.out.println(csvFileName);
                 ChartBuilder chartBuilder = new ChartBuilder(csvFileName);
                 chartBuilder.buildCpsChart("Al27");
             }
