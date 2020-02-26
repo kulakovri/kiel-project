@@ -7,6 +7,11 @@ import java.util.ArrayList;
 import java.util.TreeMap;
 
 class Templates {
+    static void postProcessGrain() {
+        PostProcessedGrain postProcessedGrain = new PostProcessedGrain("csv-out/5/18-3a-1-8.csv");
+        postProcessedGrain.buildCsv("18-3a-1-8");
+    }
+
     static void loadGrains() {
         for (String grainName : Store.getAnalyzedGrains()) {
             try {
