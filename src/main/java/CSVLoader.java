@@ -87,7 +87,11 @@ class CSVLoader {
     }
 
     static ArrayList<String> getListOfCsvFiles() {
-        File folder = new File("csv/");
+        return getListOfFilesInFolder("csv");
+    }
+
+    static ArrayList<String> getListOfFilesInFolder(String folderName) {
+        File folder = new File( folderName + "/");
         File[] listOfFiles = folder.listFiles();
 
         ArrayList<String> fileNames = new ArrayList<>();
