@@ -12,6 +12,7 @@ class PostProcessedGrain {
     String dirpath = null;
 
     PostProcessedGrain(String csvFileAddress) {
+        System.out.println(csvFileAddress);
         csvData = readCsv(csvFileAddress);
         for (String row : csvData) {
             PostProcessedRow postProcessedRow = new PostProcessedRow(row);
@@ -54,4 +55,23 @@ class PostProcessedGrain {
         return dirpath;
     }
 
+    void printRimValues() {
+        String elementName = "Na23";
+        Double sum = 0.0;
+        int count = 0;
+        int distanceFromRim = 10;
+        for (PostProcessedRow processedRow : postProcessedRows) {
+            if (processedRow.distanceFromRim > distanceFromRim) {
+                continue;
+            }
+            String ppmValue = processedRow.ppmValueByElementName.get(elementName);
+            if (ppmValue == null) {
+                continue;
+            }
+            sum += Double.valueOf(ppmValue);
+            count++;
+        }
+        Double average = sum / count;
+        System.out.println( "For " + elementName + " average rim (in " + distanceFromRim + "mkm) value is " + average + " ppm for " + count + " measures");
+    }
 }

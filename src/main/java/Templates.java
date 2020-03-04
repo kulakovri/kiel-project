@@ -7,9 +7,20 @@ import java.util.ArrayList;
 import java.util.TreeMap;
 
 class Templates {
-    static void postProcessGrain() {
-        PostProcessedGrain postProcessedGrain = new PostProcessedGrain("csv-out/5/18-3a-1-8.csv");
-        postProcessedGrain.buildCsv("18-3a-1-8");
+    static void getRimPPMProcessedGrains() {
+        String folder = "csv-out/6";
+        for (String filePath : CSVLoader.getListOfFilesInFolder(folder)) {
+            PostProcessedGrain postProcessedGrain = new PostProcessedGrain(folder + "/"+ filePath);
+            postProcessedGrain.printRimValues();
+        }
+    }
+
+    static void sortPostProcessedGrains() {
+        String folder = "csv-out/5";
+        for (String filePath : CSVLoader.getListOfFilesInFolder(folder)) {
+            PostProcessedGrain postProcessedGrain = new PostProcessedGrain(folder + "/"+ filePath);
+            postProcessedGrain.buildCsv(filePath.split("\\.")[0]);
+        }
     }
 
     static void loadGrains() {
