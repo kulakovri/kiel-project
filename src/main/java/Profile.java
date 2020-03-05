@@ -37,7 +37,6 @@ class Profile {
                 continue;
             }
             Double analyteBackgroundAverageCps = this.backgroundAverages.get(elementName);
-
             for (Double value : getAnalyteValues(elementName)) {
                 Double valueMinusBackground = value - analyteBackgroundAverageCps;
                 analyteCpsValuesMinusBackgroundByElement.computeIfAbsent(elementName, k -> new ArrayList<>()).add(valueMinusBackground);
@@ -48,7 +47,6 @@ class Profile {
                 } catch (Exception e) {
 
                 }
-
             }
         }
     }
@@ -130,7 +128,6 @@ class Profile {
     private boolean isFromRimToCoreProfile(String csvFileName) {
         for (String rimToCoreLine : Store.getRimToCoreLines()) {
             if (csvFileName.contains(rimToCoreLine + ".csv") || csvFileName.contains(rimToCoreLine + "a.csv")) {
-
                 return true;
             }
         }

@@ -36,7 +36,7 @@ class PostProcessedGrain {
             if (postProcessedRow.isNotValueRow) {
                 continue;
             }
-            csvString += "\n" + postProcessedRow.fullRow;
+            csvString += "\n" + postProcessedRow.recalculatedFullRow;
         }
         try {
             FileWriter fileWriter = new FileWriter(getDirPath() + fileName + ".csv", false);

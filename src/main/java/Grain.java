@@ -16,42 +16,17 @@ class Grain {
         getCalculations();
     }
 
-    void buildGrainCsv() {
-        ArrayList<CSVBuilder> csvBuilders = new ArrayList<>();
-        for (Profile profile : profiles) {
-            if (profile.isFromRimToCore) {
-                if (profile.isContinuation) {
-                    if (!fromRimToCoreProfileContinued.isEmpty()) {
-                        csvBuilders.add(new CSVBuilder(profile.csvFileName, fromRimToCoreProfileContinued));
-                    }
-                } else {
-                    if (!fromRimToCoreProfileInitial.isEmpty()) {
-                        csvBuilders.add(new CSVBuilder(profile.csvFileName, fromRimToCoreProfileInitial));
-                    }
-                }
-            } else {
-                if (profile.isContinuation) {
-                    if (!fromCoreToRimProfileContinued.isEmpty()) {
-                        csvBuilders.add(new CSVBuilder(profile.csvFileName, fromCoreToRimProfileContinued));
-                    }
-                } else {
-                    if (!fromCoreToRimProfileInitial.isEmpty()) {
-                        csvBuilders.add(new CSVBuilder(profile.csvFileName, fromCoreToRimProfileInitial));
-                    }
-                }
-            }
-        }
-        CSVBuilder.buildJoinedCsv(name, csvBuilders);
-    }
-
     private void loadProfiles() {
-
         for (String csvFileName : CSVLoader.getListOfCsvFiles()) {
             if (isForThisGrainProfile(csvFileName)) {
                 Profile loadedProfile = new Profile(csvFileName);
                 profiles.add(loadedProfile);
             }
         }
+    }
+
+    private boolean isForThisGrainProfile(String csvFileName) {
+        return csvFileName.contains(name);
     }
 
     private void getCalculations() {
@@ -89,7 +64,31 @@ class Grain {
         fromRimToCoreProfileContinued = fromRimToCoreCompiler.continuedProfileData;
     }
 
-    private boolean isForThisGrainProfile(String csvFileName) {
-        return csvFileName.contains(name);
+    void buildGrainCsv() {
+        ArrayList<CSVBuilder> csvBuilders = new ArrayList<>();
+        for (Profile profile : profiles) {
+            if (profile.isFromRimToCore) {
+                if (profile.isContinuation) {
+                    if (!fromRimToCoreProfileContinued.isEmpty()) {
+                        csvBuilders.add(new CSVBuilder(profile.csvFileName, fromRimToCoreProfileContinued));
+                    }
+                } else {
+                    if (!fromRimToCoreProfileInitial.isEmpty()) {
+                        csvBuilders.add(new CSVBuilder(profile.csvFileName, fromRimToCoreProfileInitial));
+                    }
+                }
+            } else {
+                if (profile.isContinuation) {
+                    if (!fromCoreToRimProfileContinued.isEmpty()) {
+                        csvBuilders.add(new CSVBuilder(profile.csvFileName, fromCoreToRimProfileContinued));
+                    }
+                } else {
+                    if (!fromCoreToRimProfileInitial.isEmpty()) {
+                        csvBuilders.add(new CSVBuilder(profile.csvFileName, fromCoreToRimProfileInitial));
+                    }
+                }
+            }
+        }
+        CSVBuilder.buildJoinedCsv(name, csvBuilders);
     }
 }

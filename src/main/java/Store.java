@@ -192,4 +192,24 @@ public class Store {
         }
         return rimToCoreLines;
     }
+    
+    static Double getMolarWeight(String element) {
+        HashMap<String, Double> molarWeightsByName = new HashMap<>();
+        molarWeightsByName.put("O", 15.9994);
+        molarWeightsByName.put("Na", 22.99);
+        molarWeightsByName.put("Mg", 24.305);
+        molarWeightsByName.put("Al", 26.9815);
+        molarWeightsByName.put("Si", 28.086);
+        molarWeightsByName.put("P", 30.9738);
+        molarWeightsByName.put("K", 39.098);
+        molarWeightsByName.put("Ca", 40.078);
+        molarWeightsByName.put("Ti", 47.867);
+        molarWeightsByName.put("V", 50.9415);
+        molarWeightsByName.put("Cr", 51.996);
+        molarWeightsByName.put("Mn", 54.938);
+        molarWeightsByName.put("Fe", 55.845);
+        molarWeightsByName.put("Ni", 58.693);
+        molarWeightsByName.put("Sr", 103.62);
+        return molarWeightsByName.get(element);
+    }
 }

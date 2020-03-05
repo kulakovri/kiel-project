@@ -7,8 +7,16 @@ import java.util.ArrayList;
 import java.util.TreeMap;
 
 class Templates {
+
+    static void testOxides() {
+        Oxide oxide = new Oxide("CaO");
+        System.out.println(oxide.ppmWeightRatio);
+        Double percents = 100698.61 / oxide.ppmWeightRatio;
+        System.out.println(percents);
+    }
+
     static void getRimPPMProcessedGrains() {
-        String folder = "csv-out/6";
+        String folder = "csv-out/7";
         for (String filePath : CSVLoader.getListOfFilesInFolder(folder)) {
             PostProcessedGrain postProcessedGrain = new PostProcessedGrain(folder + "/"+ filePath);
             postProcessedGrain.printRimValues();
@@ -16,7 +24,7 @@ class Templates {
     }
 
     static void sortPostProcessedGrains() {
-        String folder = "csv-out/5";
+        String folder = "csv-out/7";
         for (String filePath : CSVLoader.getListOfFilesInFolder(folder)) {
             PostProcessedGrain postProcessedGrain = new PostProcessedGrain(folder + "/"+ filePath);
             postProcessedGrain.buildCsv(filePath.split("\\.")[0]);
