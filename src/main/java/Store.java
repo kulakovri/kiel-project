@@ -91,7 +91,7 @@ public class Store {
             initProfileLengths.put("1-008-18-5h-1-2L1a.csv", 444.4);
             initProfileLengths.put("1-009-18-5h-1-2L2.csv", 448.6);
             initProfileLengths.put("1-010-18-5h-1-2L2a.csv", 376.7);
-            initProfileLengths.put("1-011-18-5h-1-8L3.csv", 423.2);
+            initProfileLengths.put("1-011-18-5h-1-8L3.csv", 440.2);
             initProfileLengths.put("1-012-18-5h-1-8L4.csv", 522.7);
             initProfileLengths.put("1-013-18-5h-1-10L5.csv", 471.9);
             initProfileLengths.put("1-014-18-5h-1-10L6.csv", 476.2);

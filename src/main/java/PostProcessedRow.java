@@ -4,7 +4,6 @@ import java.util.HashMap;
 public class PostProcessedRow implements Comparable<PostProcessedRow> {
     String header = "Line Number,Dist from rim,Li7,Na23,Mg24,Al27,Si29,P31,K39,Ca43,Ca44,Ti47,Mn55,Fe57,Cu65,Ga71,Sr88,Y89,Ba138,Ce140,Pb208";
     String fullRow;
-    String recalculatedFullRow;
     int rowsSize = 21;
     Double distanceFromRim = 0.0;
     Double sumPpm = 0.0;
@@ -36,15 +35,6 @@ public class PostProcessedRow implements Comparable<PostProcessedRow> {
                     System.out.println(e.getMessage());
                 }
             }
-            ArrayList<String> recalculatedRow = new ArrayList<>();
-            recalculatedRow.add(rowValues[0]);
-            recalculatedRow.add(rowValues[1]);
-            for (int columnIndex = 2 ; columnIndex < rowsSize ; columnIndex++) {
-                Double value = Double.valueOf(rowValues[columnIndex]);
-                Double normalizedValue = Math.round((value / sumPpm) * 100000000) / 100.0;
-                recalculatedRow.add(String.valueOf(normalizedValue));
-            }
-            recalculatedFullRow = String.join( ",", recalculatedRow);
             setPercentValuesByOxideName();
         }
     }
@@ -52,42 +42,44 @@ public class PostProcessedRow implements Comparable<PostProcessedRow> {
     void setPercentValuesByOxideName() {
         Double percentSum = 0.0;
         for (String elementName : ppmValueByElementName.keySet()) {
-            elementName = elementName.replaceAll("[0-9]", "");
             Double elementValue = Double.valueOf(ppmValueByElementName.get(elementName));
+            String formattedElementName = elementName.replaceAll("[0-9]", "");
             String oxideName = "";
-            if (elementName.contains("Si")) {
+            if (formattedElementName.equalsIgnoreCase("Si")) {
                 oxideName = "SiO2";
-            } else if (elementName.contains("Al")) {
+            } else if (formattedElementName.equalsIgnoreCase("Al")) {
                 oxideName = "Al2O3";
-            } else if (elementName.contains("Fe")) {
+            } else if (formattedElementName.equalsIgnoreCase("Fe")) {
                 oxideName = "FeO";
-            } else if (elementName.contains("Ca")) {
+            } else if (formattedElementName.equalsIgnoreCase("Ca")) {
                 oxideName = "CaO";
-            } else if (elementName.contains("Na")) {
+            } else if (formattedElementName.equalsIgnoreCase("Na")) {
                 oxideName = "Na2O";
-            } else if (elementName.contains("K")) {
+            } else if (formattedElementName.equalsIgnoreCase("K")) {
                 oxideName = "K2O";
-            } else if (elementName.contains("Mg")) {
+            } else if (formattedElementName.equalsIgnoreCase("Mg")) {
                 oxideName = "MgO";
-            } else if (elementName.contains("Ti")) {
+            } else if (formattedElementName.equalsIgnoreCase("Ti")) {
                 oxideName = "TiO2";
-            } else if (elementName.contains("Mn")) {
+            } else if (formattedElementName.equalsIgnoreCase("Mn")) {
                 oxideName = "MnO";
-            } else if (elementName.contains("Sr")) {
+            } else if (formattedElementName.equalsIgnoreCase("Sr")) {
                 oxideName = "SrO";
-            } else if (elementName.contains("P")) {
+            } else if (formattedElementName.equalsIgnoreCase("P")) {
                 oxideName = "P2O5";
             }
             if (!oxideName.equals("")) {
                 Oxide oxide = new Oxide(oxideName);
                 Double percentValue = elementValue / oxide.ppmWeightRatio;
                 percentValuesByOxideName.put(oxideName, percentValue);
-                percentSum += percentValue;
+                if (!elementName.equals("Ca43")) {
+                    percentSum += percentValue;
+                }
             }
         }
         for (String oxideName : percentValuesByOxideName.keySet()) {
             Double oxidePercent = percentValuesByOxideName.get(oxideName);
-            Double normalizedPercent = Math.round(10000.00 * (oxidePercent / percentSum)) / 100.00;
+            Double normalizedPercent = Math.round(100000.00 * (oxidePercent / percentSum)) / 1000.00;
             percentValuesByOxideName.put(oxideName, normalizedPercent);
         }
         setAnorthite();
@@ -96,11 +88,12 @@ public class PostProcessedRow implements Comparable<PostProcessedRow> {
 
     void setAnorthite() {
         Double anorthite = percentValuesByOxideName.get("CaO") / (percentValuesByOxideName.get("CaO") + percentValuesByOxideName.get("Na2O") + percentValuesByOxideName.get("K2O"));
+        anorthite = Math.round(anorthite * 10000.00) / 100.00;
         percentValuesByOxideName.put("An", anorthite);
     }
 
     void updateHeaderAndRow() {
-        for (String oxideName : percentValuesByOxideName.keySet()) {
+        for (String oxideName : new String[]{"SiO2","Al2O3","FeO","CaO","Na2O","K2O","MgO","SrO","P2O5","MnO","TiO2","An"}) {
             Double percentValue = percentValuesByOxideName.get(oxideName);
             header += ","  + oxideName;
             fullRow += "," + percentValue;

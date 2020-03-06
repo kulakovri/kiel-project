@@ -20,6 +20,7 @@ class Profile {
     Profile(String csvFileName) {
         this.csvFileName = csvFileName;
         this.csvData = CSVLoader.loadCsv("csv/" + csvFileName);
+
         setBackground();
         setBackgroundAverages();
         setNonAnalyteAreas();

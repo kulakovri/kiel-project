@@ -1,9 +1,10 @@
 import org.knowm.xchart.BitmapEncoder;
 import org.knowm.xchart.XYChart;
+import org.knowm.xchart.XYChartBuilder;
+import org.knowm.xchart.XYSeries;
 import org.knowm.xchart.style.Styler;
 import org.knowm.xchart.style.markers.SeriesMarkers;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -15,6 +16,24 @@ public class ChartBuilder {
         Profile profile = new Profile(csvAddress);
         this.profile = profile;
         this.csvFileName = csvAddress.substring(4);
+    }
+
+    void buildGrainChart(String elementName) {
+        ArrayList<Double> cpsValues = profile.getColumnValuesByName(elementName);
+        String title = csvFileName + " - " + elementName;
+        XYChart chart = new XYChartBuilder().width(2000).height(800).title(title).xAxisTitle("Distance From Rim").yAxisTitle(elementName).build();
+
+        chart.getStyler().setDefaultSeriesRenderStyle(XYSeries.XYSeriesRenderStyle.Scatter);
+        chart.getStyler().setLegendPosition(Styler.LegendPosition.OutsideE);
+        chart.getStyler().setMarkerSize(3);
+
+        chart.addSeries("analyte", getXdataForYValues(cpsValues), cpsValues);
+        chart.addSeries("non-analyte", profile.nonAnalyteValueIndexes, getCpsValuesForIndexes(cpsValues, profile.nonAnalyteValueIndexes)).setMarker(SeriesMarkers.CIRCLE).setLineWidth(1);
+        try {
+            BitmapEncoder.saveBitmap(chart, getDirPath() + title, BitmapEncoder.BitmapFormat.GIF);
+        } catch (IOException e) {
+
+        }
     }
 
     void buildCpsChart(String elementName) {

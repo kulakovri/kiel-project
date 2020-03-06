@@ -7,6 +7,13 @@ import java.util.ArrayList;
 import java.util.TreeMap;
 
 class Templates {
+    static void buildCompiledCharts() {
+        String folder = "csv-out/19";
+        for (String filePath : CSVLoader.getListOfFilesInFolder(folder)) {
+            CompiledProfile compiledProfile = new CompiledProfile(folder + "/" + filePath);
+            compiledProfile.buildChartsForAllElements();
+        }
+    }
 
     static void testOxides() {
         Oxide oxide = new Oxide("CaO");

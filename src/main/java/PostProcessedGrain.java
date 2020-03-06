@@ -31,12 +31,12 @@ class PostProcessedGrain {
     }
 
     void buildCsv(String fileName) {
-        String csvString = "Line Number,Dist from rim,Li7,Na23,Mg24,Al27,Si29,P31,K39,Ca43,Ca44,Ti47,Mn55,Fe57,Cu65,Ga71,Sr88,Y89,Ba138,Ce140,Pb208";
+        String csvString = "Line Number,Dist from rim,Li7,Na23,Mg24,Al27,Si29,P31,K39,Ca43,Ca44,Ti47,Mn55,Fe57,Cu65,Ga71,Sr88,Y89,Ba138,Ce140,Pb208,SiO2,Al2O3,FeO,CaO,Na2O,K2O,MgO,SrO,P2O5,MnO,TiO2,An";
         for (PostProcessedRow postProcessedRow : postProcessedRows) {
             if (postProcessedRow.isNotValueRow) {
                 continue;
             }
-            csvString += "\n" + postProcessedRow.recalculatedFullRow;
+            csvString += "\n" + postProcessedRow.fullRow;
         }
         try {
             FileWriter fileWriter = new FileWriter(getDirPath() + fileName + ".csv", false);

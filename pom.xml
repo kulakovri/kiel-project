@@ -32,7 +32,7 @@
         <dependency>
             <groupId>org.knowm.xchart</groupId>
             <artifactId>xchart</artifactId>
-            <version>3.6.0</version>
+            <version>3.6.1</version>
         </dependency>
     </dependencies>
 

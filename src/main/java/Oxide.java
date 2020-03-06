@@ -13,10 +13,6 @@ public class Oxide {
         setCationAmount(formulaParts);
         cationMolarWeight = Store.getMolarWeight(cation);
         setPpmWeightRatio();
-        System.out.println(cation);
-        System.out.println(cationAmount);
-        System.out.println(oxygenAmount);
-        System.out.println(ppmWeightRatio);
     }
 
     void setOxygenAmount(String[] formulaParts) {
