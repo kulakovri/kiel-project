@@ -1,3 +1,4 @@
+import com.google.gson.Gson;
 import org.knowm.xchart.BitmapEncoder;
 import org.knowm.xchart.XYChart;
 import org.knowm.xchart.style.Styler;
@@ -7,6 +8,90 @@ import java.util.ArrayList;
 import java.util.TreeMap;
 
 class Templates {
+
+
+    static void getProfileLenghtsJson() {
+        Gson gson = new Gson();
+        System.out.println(gson.toJson(Store.getRimToCoreLines()));
+    }
+
+
+    static void buildGrainsWithMedianSliding() {
+        String folder = "csv-out/7";
+        for (String filePath : CSVLoader.getListOfFilesInFolder(folder)) {
+            PostProcessedGrain postProcessedGrain = new PostProcessedGrain(folder + "/"+ filePath);
+            postProcessedGrain.buildMedianSlidingWindow(20, filePath.split("\\.")[0]);
+
+        }
+    }
+
+
+    static void buildCompiledChartsWithoutRange() {
+        String folder = "csv-out/22";
+        for (String filePath : CSVLoader.getListOfFilesInFolder(folder)) {
+            CompiledProfile compiledProfile = new CompiledProfile(folder + "/" + filePath);
+            if (filePath.contains("3a-1-8")) {
+                compiledProfile.buildChartsExcludingRanges(new int[][]{new int[]{-1, 30}, new int[]{445,500}, new int[]{370,400}, new int[]{260,280}, new int[]{875,950}});
+            } else if (filePath.contains("5h-1-2")) {
+                compiledProfile.buildChartsExcludingRanges(new int[][]{new int[]{-1, 30}, new int[]{130, 148}});
+            } else if (filePath.contains("x2-1-27")) {
+                compiledProfile.buildChartsExcludingRanges(new int[][]{new int[]{-1, 30}, new int[]{230,233} });
+            } else if (filePath.contains("x3-1-10")) {
+                compiledProfile.buildChartsExcludingRanges(new int[][]{new int[]{-1, 40}, new int[]{317, 330}, new int[]{425, 440}, new int[]{530, 548}, new int[]{100, 128}});
+            } else if (filePath.contains("x3-1-41")) {
+                compiledProfile.buildChartsExcludingRanges(new int[][]{new int[]{-1, 18}, new int[]{110,125} });
+            } else if (filePath.contains("x3-1-54")) {
+                compiledProfile.buildChartsExcludingRanges(new int[][]{new int[]{-1, 10}, new int[]{42, 88} });
+            } else if (filePath.contains("5h-1-8")) {
+                compiledProfile.buildChartsExcludingRanges(new int[][]{new int[]{-1, 10}, new int[]{302, 305}});
+            } else if (filePath.contains("x2-1-13")) {
+                compiledProfile.buildChartsExcludingRanges(new int[][]{new int[]{-1, 10}, new int[]{435, 450}});
+            } else if (filePath.contains("x2-1-25")) {
+                compiledProfile.buildChartsExcludingRanges(new int[][]{new int[]{240, 340}, new int[]{40, 55}});
+            } else if (filePath.contains("x2-1-5")) {
+                compiledProfile.buildChartsExcludingRanges(new int[][]{new int[]{270, 288}, new int[]{349,360}, new int[]{30,42} });
+            } else if (filePath.contains("x2-2-41")) {
+                compiledProfile.buildChartsExcludingRanges(new int[][]{new int[]{390, 418}, new int[]{-1, 30}, new int[]{75, 120}});
+            } else if (filePath.contains("x2-2-84")) {
+                compiledProfile.buildChartsExcludingRanges(new int[][]{new int[]{97, 100}, new int[]{605,626}, new int[]{60,80}});
+            } else if (filePath.contains("5h-1-10")) {
+                compiledProfile.buildChartsExcludingRanges(new int[][]{new int[]{375, 395}, new int[]{291, 310}});
+            } else if (filePath.contains("x3-1-12")) {
+                compiledProfile.buildChartsExcludingRanges(new int[][]{new int[]{225, 245}, new int[]{265, 287}, new int[]{-1, 5}});
+            } else if (filePath.contains("x3-1-49")) {
+                compiledProfile.buildChartsExcludingRanges(new int[][]{new int[]{412, 415}, new int[]{-1, 40}, new int[]{390, 405}});
+            } else if (filePath.contains("x3-1-53")) {
+                compiledProfile.buildChartsExcludingRanges(new int[][]{new int[]{69, 85}, new int[]{170, 189}, new int[]{405, 431}, new int[]{22, 35}});
+            } else if (filePath.contains("3a-2-5")) {
+                compiledProfile.buildChartsExcludingRanges(new int[][]{new int[]{250, 535}, new int[]{680, 737}});
+            } else if (filePath.contains("3a-2-2")) {
+                compiledProfile.buildChartsExcludingRanges(new int[][]{new int[]{0, 40}, new int[]{130, 190}, new int[]{250, 350}, new int[]{600, 710}});
+            } else {
+                compiledProfile.buildChartsExcludingRanges(new int[][]{});
+            }
+        }
+    }
+
+    static void buildCompiledChartsWithinRange() {
+        String folder = "csv-out/19";
+        for (String filePath : CSVLoader.getListOfFilesInFolder(folder)) {
+            CompiledProfile compiledProfile = new CompiledProfile(folder + "/" + filePath);
+            if (filePath.contains("3a-2-2")) {
+                compiledProfile.buildChartsWithinRange(590, 700);
+            } else if (filePath.contains("18-5h-x2-1-5")) {
+                compiledProfile.buildChartsWithinRange(300, 430);
+            } else if (filePath.contains("18-5h-x2-1-25")) {
+                compiledProfile.buildChartsWithinRange(410, 540);
+            } else if (filePath.contains("18-5h-x2-2-41")) {
+                compiledProfile.buildChartsWithinRange(430, 530);
+            } else if (filePath.contains("18-5h-x2-2-84")) {
+                compiledProfile.buildChartsWithinRange(560, 700);
+            } else if (filePath.contains("18-5h-x3-1-54")) {
+                compiledProfile.buildChartsWithinRange(430, 530);
+            }
+        }
+    }
+
     static void buildCompiledCharts() {
         String folder = "csv-out/19";
         for (String filePath : CSVLoader.getListOfFilesInFolder(folder)) {

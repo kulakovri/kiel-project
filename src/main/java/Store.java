@@ -84,7 +84,7 @@ public class Store {
 
     static TreeMap<String, Double> profileLengths = new TreeMap<>();
 
-    static Double getProfileLength(String csvFileName) {
+    public static Double getProfileLength(String csvFileName) {
         if (profileLengths.isEmpty()) {
             TreeMap<String, Double> initProfileLengths = new TreeMap<>();
             initProfileLengths.put("1-007-18-5h-1-2L1.csv", 380.9);
